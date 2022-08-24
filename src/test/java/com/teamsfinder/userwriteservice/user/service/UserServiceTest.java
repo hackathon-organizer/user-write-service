@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -75,7 +76,7 @@ class UserServiceTest extends UnitBaseClass {
         //when
         UserResponseDto userDto =
                 underTest.editUser(new EditUserRequestDto(1L, EDIT_STRING,
-                        EDIT_STRING, new ArrayList<>()));
+                        EDIT_STRING, Set.of(), new ArrayList<>()));
 
         //then
         assertThat(userDto.id()).isEqualTo(1L);
@@ -95,7 +96,7 @@ class UserServiceTest extends UnitBaseClass {
         //when
         Executable executableEditUser =
                 () -> underTest.editUser(new EditUserRequestDto(1L,
-                        EDIT_STRING, EDIT_STRING, new ArrayList<>()));
+                        EDIT_STRING, EDIT_STRING, Set.of(), new ArrayList<>()));
 
         //then
         assertThrows(UserNotFoundException.class, executableEditUser);

@@ -1,9 +1,13 @@
 spring:
   config:
     import: optional:configserver:http://localhost:8888/
+    label: user-write-service
   cloud:
-    config:
-      token: roottoken
+    vault:
+      generic:
+        enabled: true
+        profile-separator: '/'
+        default-context: user-write-service
   application:
     name: user-write-service
   liquibase:

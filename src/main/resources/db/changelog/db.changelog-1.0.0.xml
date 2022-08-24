@@ -54,4 +54,35 @@
                                  onDelete="RESTRICT"/>
 
     </changeSet>
+
+    <changeSet id="add-user-invitations" author="Yankes">
+
+        <createTable tableName="user_team_invitations">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_invitation_id"/>
+            </column>
+            <column name="inviting_user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="invitation_status" type="varchar" defaultValue="PENDING">
+            </column>
+            <column name="team_name" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="team_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="user_team_invitations"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_invitations_users"
+                                 referencedTableName="user_profile"
+                                 referencedColumnNames="id" onUpdate="RESTRICT"
+                                 onDelete="RESTRICT"/>
+
+    </changeSet>
 </databaseChangeLog>

@@ -3,6 +3,7 @@ package com.teamsfinder.userwriteservice.user.controller;
 import com.teamsfinder.userwriteservice.user.IntegrationBaseClass;
 import com.teamsfinder.userwriteservice.user.creator.UserCreator;
 import com.teamsfinder.userwriteservice.user.dto.EditUserRequestDto;
+import com.teamsfinder.userwriteservice.user.model.TeamInvitation;
 import com.teamsfinder.userwriteservice.user.model.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,7 +30,7 @@ class UserControllerTest extends IntegrationBaseClass {
         //given
         User user = userCreator.create();
         EditUserRequestDto editUserDto = new EditUserRequestDto(user.getId(),
-                EDIT_STRING, EDIT_STRING, new ArrayList<>());
+                EDIT_STRING, EDIT_STRING, Set.of() , new ArrayList<>());
         String json =
                 objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(editUserDto);
 
@@ -48,7 +50,7 @@ class UserControllerTest extends IntegrationBaseClass {
     void shouldThrowWhileEditingUser() throws Exception {
         //given
         EditUserRequestDto editUserDto = new EditUserRequestDto(1L, null,
-                EDIT_STRING, new ArrayList<>());
+                EDIT_STRING, Set.of(), new ArrayList<>());
         String json =
                 objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(editUserDto);
 
