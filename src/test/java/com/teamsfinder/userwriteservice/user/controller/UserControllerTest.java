@@ -3,7 +3,6 @@ package com.teamsfinder.userwriteservice.user.controller;
 import com.teamsfinder.userwriteservice.user.IntegrationBaseClass;
 import com.teamsfinder.userwriteservice.user.creator.UserCreator;
 import com.teamsfinder.userwriteservice.user.dto.EditUserRequestDto;
-import com.teamsfinder.userwriteservice.user.model.TeamInvitation;
 import com.teamsfinder.userwriteservice.user.model.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ class UserControllerTest extends IntegrationBaseClass {
         //given
         User user = userCreator.create();
         EditUserRequestDto editUserDto = new EditUserRequestDto(user.getId(),
-                EDIT_STRING, EDIT_STRING, Set.of() , new ArrayList<>());
+                EDIT_STRING, EDIT_STRING, new ArrayList<>());
         String json =
                 objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(editUserDto);
 
@@ -50,7 +49,7 @@ class UserControllerTest extends IntegrationBaseClass {
     void shouldThrowWhileEditingUser() throws Exception {
         //given
         EditUserRequestDto editUserDto = new EditUserRequestDto(1L, null,
-                EDIT_STRING, Set.of(), new ArrayList<>());
+                EDIT_STRING, new ArrayList<>());
         String json =
                 objectMapper.writer().withDefaultPrettyPrinter().writeValueAsString(editUserDto);
 

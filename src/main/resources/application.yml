@@ -18,5 +18,12 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+keycloak:
+  authUrl: http://localhost:8080/auth
+  realm: hackathon-organizer
+  masterRealm: master
+  clientId: admin-cli
+  username: admin
+  password: admin
 server:
   port: 0
