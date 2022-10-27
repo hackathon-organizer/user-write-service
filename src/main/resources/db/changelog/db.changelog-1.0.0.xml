@@ -87,4 +87,50 @@
                                  onDelete="RESTRICT"/>
 
     </changeSet>
+
+    <changeSet id="add-schedule-availability" author="Yankes">
+        <createTable tableName="schedule_entry">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_event_id"/>
+            </column>
+
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="hackathon_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="team_id" type="bigint">
+            </column>
+
+            <column name="info" type="varchar"/>
+
+            <column name="entry_color" type="varchar"/>
+
+            <column name="session_start" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="session_end" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="schedule_entry"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_schedule_entry_users"
+                                 referencedTableName="user_profile"
+                                 referencedColumnNames="id" onUpdate="RESTRICT"
+                                 onDelete="RESTRICT"/>
+
+    </changeSet>
+
+    <changeSet id="add-event-availability-flag" author="Yankes">
+        <addColumn tableName="schedule_entry">
+            <column name="is_available" type="bool" defaultValue="false"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

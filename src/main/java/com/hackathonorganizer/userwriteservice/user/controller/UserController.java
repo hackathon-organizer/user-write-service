@@ -1,13 +1,16 @@
 package com.hackathonorganizer.userwriteservice.user.controller;
 
 import com.hackathonorganizer.userwriteservice.user.dto.EditUserRequestDto;
+import com.hackathonorganizer.userwriteservice.user.dto.ScheduleMeetingRequest;
 import com.hackathonorganizer.userwriteservice.user.dto.UserMembershipRequest;
 import com.hackathonorganizer.userwriteservice.user.dto.UserResponseDto;
+import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntry;
 import com.hackathonorganizer.userwriteservice.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/write/users")
@@ -28,8 +31,22 @@ class UserController {
         return userService.updateUserHackathonMemership(userId, userMembershipRequest);
     }
 
-    @PatchMapping("/{id}/block")
-    UserResponseDto blockUser(@PathVariable("id") Long id) {
-        return userService.blockUser(id);
+    @PatchMapping("/{userId}/block")
+    UserResponseDto blockUser(@PathVariable("userId") Long userId) {
+        return userService.blockUser(userId);
     }
+
+    @PostMapping("/{userId}/schedule")
+    void createUserScheduleEntry(@PathVariable("userId") Long userId,
+            @RequestBody Set<ScheduleEntry> scheduleEntries) {
+
+        userService.createUserScheduleEntry(userId, scheduleEntries);
+    }
+
+    @PatchMapping("/schedule")
+    boolean updateUserSchedule(@RequestBody ScheduleMeetingRequest meetingRequest) {
+
+        return userService.updateUserHackathonSchedule(meetingRequest);
+    }
+
 }
