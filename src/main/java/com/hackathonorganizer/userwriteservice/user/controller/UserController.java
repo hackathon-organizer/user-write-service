@@ -5,6 +5,7 @@ import com.hackathonorganizer.userwriteservice.user.dto.ScheduleMeetingRequest;
 import com.hackathonorganizer.userwriteservice.user.dto.UserMembershipRequest;
 import com.hackathonorganizer.userwriteservice.user.dto.UserResponseDto;
 import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntry;
+import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntryRequest;
 import com.hackathonorganizer.userwriteservice.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -40,13 +41,26 @@ class UserController {
     void createUserScheduleEntry(@PathVariable("userId") Long userId,
             @RequestBody Set<ScheduleEntry> scheduleEntries) {
 
-        userService.createUserScheduleEntry(userId, scheduleEntries);
+        userService.updateUserScheduleEntry(userId, scheduleEntries);
     }
 
     @PatchMapping("/schedule")
     boolean updateUserSchedule(@RequestBody ScheduleMeetingRequest meetingRequest) {
 
         return userService.updateUserHackathonSchedule(meetingRequest);
+    }
+
+    @DeleteMapping("/schedule/{entryId}")
+    void deleteScheduleEntry(@PathVariable("entryId") Long entryId) {
+
+        userService.deleteScheduleEntry(entryId);
+    }
+
+    @PatchMapping("/schedule/{entryId}")
+    void updateUserScheduleEntry(@PathVariable("entryId") Long entryId,
+            @RequestBody ScheduleEntryRequest scheduleEntry) {
+
+        userService.updateUserScheduleEntryTime(entryId, scheduleEntry);
     }
 
 }

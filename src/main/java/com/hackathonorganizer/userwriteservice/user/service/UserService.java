@@ -9,6 +9,7 @@ import com.hackathonorganizer.userwriteservice.user.dto.UserResponseDto;
 import com.hackathonorganizer.userwriteservice.user.exception.UserNotFoundException;
 import com.hackathonorganizer.userwriteservice.user.keycloak.KeycloakService;
 import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntry;
+import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntryRequest;
 import com.hackathonorganizer.userwriteservice.user.model.User;
 import com.hackathonorganizer.userwriteservice.user.repository.ScheduleEntryRepository;
 import com.hackathonorganizer.userwriteservice.user.repository.UserRepository;
@@ -117,7 +118,7 @@ public class UserService {
     }
 
 
-    public void createUserScheduleEntry(Long userId,
+    public void updateUserScheduleEntry(Long userId,
             Set<ScheduleEntry> scheduleEntries) {
 
         User user =
@@ -162,5 +163,25 @@ public class UserService {
         log.info("Schedule entry updated successfully");
 
         return savedEntry.isAvailable();
+    }
+
+    public void deleteScheduleEntry(Long entryId) {
+
+        scheduleEntryRepository.deleteById(entryId);
+
+        log.info("Schedule entry with id: {} deleted successfully", entryId);
+    }
+
+    public void updateUserScheduleEntryTime(Long entryId, ScheduleEntryRequest scheduleEntry) {
+
+        ScheduleEntry scheduleEntry1 =
+                scheduleEntryRepository.findById(entryId).orElseThrow();
+
+        scheduleEntry1.setSessionStart(scheduleEntry.sessionStart());
+        scheduleEntry1.setSessionEnd(scheduleEntry.sessionEnd());
+
+        scheduleEntryRepository.save(scheduleEntry1);
+
+        log.info("Schedule entry with id: {} updated successfully", entryId);
     }
 }
