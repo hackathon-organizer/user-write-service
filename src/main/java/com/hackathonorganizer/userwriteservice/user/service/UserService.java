@@ -35,7 +35,7 @@ public class UserService {
     private User buildUser(String keyCloakId, String username) {
         return User.builder()
                 .username(username)
-                .keyCloakId(keyCloakId)
+                .keycloakId(keyCloakId)
                 .build();
     }
 
