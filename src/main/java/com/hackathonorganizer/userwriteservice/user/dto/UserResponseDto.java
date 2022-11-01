@@ -30,7 +30,7 @@ public record UserResponseDto(
         this(
                 user.getId(),
                 user.getUsername(),
-                user.getKeyCloakId(),
+                user.getKeycloakId(),
                 user.getAccountType(),
                 user.getGithubProfileUrl(),
                 user.getProfilePictureUrl(),

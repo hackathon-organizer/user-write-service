@@ -35,7 +35,7 @@ public class UserService {
     private User buildUser(String keyCloakId, String username) {
         return User.builder()
                 .username(username)
-                .keyCloakId(keyCloakId)
+                .keycloakId(keyCloakId)
                 .build();
     }
 
@@ -91,8 +91,8 @@ public class UserService {
         return !userRepository.existsById(id);
     }
 
-    public UserResponseDto updateUserHackathonMemership(Long userId,
-            UserMembershipRequest userMembershipRequest) {
+    public UserResponseDto updateUserHackathonMembership(Long userId,
+                                                         UserMembershipRequest userMembershipRequest) {
 
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException(userId));

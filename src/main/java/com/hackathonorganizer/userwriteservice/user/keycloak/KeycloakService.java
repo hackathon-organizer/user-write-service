@@ -20,7 +20,7 @@ public class KeycloakService {
     public UserRepresentation blockInKeycloak(User user) {
         try {
             Keycloak keycloak = buildKeyCloak();
-            UserResource userResource = getUserResource(user.getKeyCloakId(),
+            UserResource userResource = getUserResource(user.getKeycloakId(),
                     keycloak);
             UserRepresentation userRepresentation =
                     userResource.toRepresentation();

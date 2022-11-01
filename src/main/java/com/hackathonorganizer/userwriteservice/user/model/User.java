@@ -11,9 +11,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -28,11 +26,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty
+    @NotEmpty(message = "Username can not be empty!")
     private String username;
 
-    @NotEmpty
-    private String keyCloakId;
+    @NotEmpty(message = "Keycloak id can not be empty!")
+    private String keycloakId;
 
     @NotNull
     @Enumerated(EnumType.STRING)
