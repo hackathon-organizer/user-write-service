@@ -8,7 +8,16 @@ import lombok.experimental.UtilityClass;
 public class UserMapper {
 
     public static UserResponseDto mapUserToDto(User savedUser) {
-        return new UserResponseDto(savedUser);
+        return new UserResponseDto(
+                savedUser.getId(),
+                savedUser.getUsername(),
+                savedUser.getKeyCloakId(),
+                savedUser.getAccountType(),
+                savedUser.getGithubProfileUrl(),
+                savedUser.getProfilePictureUrl(),
+                savedUser.isBlocked(),
+                savedUser.getTags()
+        );
     }
 
 }
