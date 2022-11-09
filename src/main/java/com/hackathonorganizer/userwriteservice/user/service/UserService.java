@@ -1,12 +1,10 @@
 package com.hackathonorganizer.userwriteservice.user.service;
 
-import com.hackathonorganizer.userwriteservice.tag.dto.TagEditDto;
-import com.hackathonorganizer.userwriteservice.tag.model.Tag;
 import com.hackathonorganizer.userwriteservice.user.dto.EditUserRequestDto;
 import com.hackathonorganizer.userwriteservice.user.dto.ScheduleMeetingRequest;
 import com.hackathonorganizer.userwriteservice.user.dto.UserMembershipRequest;
-import com.hackathonorganizer.userwriteservice.user.dto.UserResponseDto;
-import com.hackathonorganizer.userwriteservice.user.exception.UserNotFoundException;
+import com.hackathonorganizer.userwriteservice.user.exception.ScheduleException;
+import com.hackathonorganizer.userwriteservice.user.exception.UserException;
 import com.hackathonorganizer.userwriteservice.user.keycloak.KeycloakService;
 import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntry;
 import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntryRequest;
@@ -16,11 +14,10 @@ import com.hackathonorganizer.userwriteservice.user.repository.UserRepository;
 import com.hackathonorganizer.userwriteservice.utils.RestCommunicator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,115 +25,72 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-
     private final KeycloakService keyCloakService;
-
     private final ScheduleEntryRepository scheduleEntryRepository;
     private final RestCommunicator restCommunicator;
 
-    public UserResponseDto createUser(String keyCloakId, String username) {
-        User user = buildUser(keyCloakId, username);
-        User savedUser = saveToRepository(user);
-        return mapUserToResponseDto(savedUser);
-    }
+    public void createUser(String keyCloakId, String username) {
 
-    private User saveToRepository(User user) {
-        return userRepository.save(user);
-    }
-
-    private User buildUser(String keyCloakId, String username) {
-        return User.builder()
+        User user = User.builder()
                 .username(username)
                 .keyCloakId(keyCloakId)
                 .build();
+
+        userRepository.save(user);
+
+        log.info("User with username: {} created successfully", username);
     }
 
-    public UserResponseDto editUser(EditUserRequestDto editUserDto) {
-        Long id = editUserDto.id();
-        if (notExistsById(id)) {
-            throw new UserNotFoundException(id);
-        }
-        User updatedUser = updateUserAndReturn(id, editUserDto);
-        User savedUser = saveToRepository(updatedUser);
-        return mapUserToResponseDto(savedUser);
-    }
+    public void editUser(Long userId, EditUserRequestDto editUserDto) {
 
-    private UserResponseDto mapUserToResponseDto(User savedUser) {
-        return new UserResponseDto(savedUser);
-    }
+        User user = getUserById(userId);
 
-    private User updateUserAndReturn(Long id, EditUserRequestDto editUserDto) {
-        User user = getUserById(id);
         user.setGithubProfileUrl(editUserDto.githubProfileUrl());
         user.setProfilePictureUrl(editUserDto.profilePictureUrl());
-        user.setTags(mapTagsFromDto(editUserDto.tags()));
-        return user;
+        user.setTags(editUserDto.tags());
+
+        userRepository.save(user);
+
+        log.info("User with id: {} updated successfully", userId);
     }
 
-    private List<Tag> mapTagsFromDto(List<TagEditDto> tags) {
-        return tags.stream()
-                .map(tag -> mapTagFromDto(tag))
-                .collect(Collectors.toList());
-    }
-
-    private Tag mapTagFromDto(TagEditDto tagDto) {
-        return Tag.builder()
-                .id(tagDto.id())
-                .name(tagDto.name())
-                .build();
-    }
-
-    public UserResponseDto blockUser(Long id) {
-        User user = getUserById(id);
+    public void blockUser(Long userId) {
+        User user = getUserById(userId);
         user.setBlocked(true);
         keyCloakService.blockInKeycloak(user);
-        User savedUser = saveToRepository(user);
-        return mapUserToResponseDto(savedUser);
+
+        userRepository.save(user);
+
+        log.info("User with id: {} account blocked", userId);
     }
 
-    private User getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
-    }
+    public void updateUserHackathonMembership(Long userId, UserMembershipRequest userMembershipRequest) {
 
-    private boolean notExistsById(Long id) {
-        return !userRepository.existsById(id);
-    }
-
-    public UserResponseDto updateUserHackathonMemership(Long userId,
-            UserMembershipRequest userMembershipRequest) {
-
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new UserNotFoundException(userId));
+        User user = getUserById(userId);
 
         user.setCurrentHackathonId(userMembershipRequest.currentHackathonId());
         user.setCurrentTeamId(userMembershipRequest.currentTeamId());
 
         userRepository.save(user);
 
-        return mapUserToResponseDto(user);
+        log.info("User with id: {} membership updated successfully", userId);
     }
 
+    public void updateUserScheduleEntry(Long userId, Set<ScheduleEntry> scheduleEntries) {
 
-    public void updateUserScheduleEntry(Long userId,
-            Set<ScheduleEntry> scheduleEntries) {
-
-        User user =
-                userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        User user = getUserById(userId);
 
         scheduleEntries.forEach(scheduleEntry -> scheduleEntry.setUser(user));
 
         user.setScheduleEntries(scheduleEntries);
         userRepository.save(user);
 
-        log.info("User with id: {} schedule updated successfully",
-                user.getId());
+        log.info("User with id: {} schedule updated successfully", user.getId());
     }
 
     public boolean updateUserHackathonSchedule(ScheduleMeetingRequest meetingRequest) {
 
-        ScheduleEntry scheduleEntry =
-                scheduleEntryRepository.findById(meetingRequest.entryId()).orElseThrow();
+        ScheduleEntry scheduleEntry = getScheduleEntryById(meetingRequest.entryId());
 
         boolean isOwner = restCommunicator.checkIfUserIsTeamOwner(meetingRequest.teamOwnerId(),
                 meetingRequest.teamId());
@@ -151,9 +105,8 @@ public class UserService {
             scheduleEntry.setTeamId(null);
             scheduleEntry.setAvailable(true);
 
-            log.info("Team with id: {} unassigned from user schedule " +
-                            "successfully"
-                    , meetingRequest.teamId());
+            log.info("Team with id: {} unassigned from user schedule successfully",
+                    meetingRequest.teamId());
         } else {
             log.info("Only team owners can assign team for meeting");
         }
@@ -165,6 +118,18 @@ public class UserService {
         return savedEntry.isAvailable();
     }
 
+    public void updateUserScheduleEntryTime(Long entryId, ScheduleEntryRequest scheduleEntryRequest) {
+
+        ScheduleEntry scheduleEntry = getScheduleEntryById(entryId);
+
+        scheduleEntry.setSessionStart(scheduleEntryRequest.sessionStart());
+        scheduleEntry.setSessionEnd(scheduleEntryRequest.sessionEnd());
+
+        scheduleEntryRepository.save(scheduleEntry);
+
+        log.info("Schedule entry with id: {} event time updated successfully", entryId);
+    }
+
     public void deleteScheduleEntry(Long entryId) {
 
         scheduleEntryRepository.deleteById(entryId);
@@ -172,16 +137,16 @@ public class UserService {
         log.info("Schedule entry with id: {} deleted successfully", entryId);
     }
 
-    public void updateUserScheduleEntryTime(Long entryId, ScheduleEntryRequest scheduleEntry) {
+    private User getUserById(Long userId) {
+        return  userRepository.findById(userId).orElseThrow(
+                () -> new UserException(String.format("User with id: %d not found", userId),
+                        HttpStatus.NOT_FOUND));
+    }
 
-        ScheduleEntry scheduleEntry1 =
-                scheduleEntryRepository.findById(entryId).orElseThrow();
-
-        scheduleEntry1.setSessionStart(scheduleEntry.sessionStart());
-        scheduleEntry1.setSessionEnd(scheduleEntry.sessionEnd());
-
-        scheduleEntryRepository.save(scheduleEntry1);
-
-        log.info("Schedule entry with id: {} updated successfully", entryId);
+    private ScheduleEntry getScheduleEntryById(Long entryId) {
+        return scheduleEntryRepository.findById(entryId)
+                .orElseThrow(() -> new ScheduleException(
+                        String.format("Schedule entry with id: %d not found", entryId),
+                        HttpStatus.NOT_FOUND));
     }
 }

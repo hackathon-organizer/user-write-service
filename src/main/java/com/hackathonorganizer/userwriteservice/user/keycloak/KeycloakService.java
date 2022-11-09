@@ -17,7 +17,7 @@ public class KeycloakService {
 
     private final KeycloakProperties keycloakProperties;
 
-    public UserRepresentation blockInKeycloak(User user) {
+    public void blockInKeycloak(User user) {
         try {
             Keycloak keycloak = buildKeyCloak();
             UserResource userResource = getUserResource(user.getKeyCloakId(),
@@ -26,7 +26,6 @@ public class KeycloakService {
                     userResource.toRepresentation();
             userRepresentation.setEnabled(false);
             userResource.update(userRepresentation);
-            return userRepresentation;
         } catch (Exception exception) {
             throw new KeycloakException(exception.getMessage());
         }
@@ -36,8 +35,7 @@ public class KeycloakService {
         RealmResource realmResource =
                 keycloak.realm(keycloakProperties.getRealm());
         UsersResource usersResource = realmResource.users();
-        UserResource userResource = usersResource.get(keyCloakId);
-        return userResource;
+        return usersResource.get(keyCloakId);
     }
 
     public Keycloak buildKeyCloak() {

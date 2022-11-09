@@ -1,16 +1,13 @@
 package com.hackathonorganizer.userwriteservice.user.dto;
 
 import com.hackathonorganizer.userwriteservice.tag.dto.TagEditDto;
+import com.hackathonorganizer.userwriteservice.tag.model.Tag;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public record EditUserRequestDto(
-
-        @NotNull
-        Long id,
-
         @NotEmpty
         String githubProfileUrl,
 
@@ -18,7 +15,7 @@ public record EditUserRequestDto(
         String profilePictureUrl,
 
         @NotNull
-        List<TagEditDto> tags
+        List<Tag> tags
 ) {
 
 }

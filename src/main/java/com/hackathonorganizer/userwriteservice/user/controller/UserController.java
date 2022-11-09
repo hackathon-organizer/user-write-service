@@ -20,21 +20,23 @@ class UserController {
 
     private final UserService userService;
 
-    @PatchMapping
-    UserResponseDto editUser(@Valid @RequestBody EditUserRequestDto editUserDto) {
-        return userService.editUser(editUserDto);
+    @PatchMapping("/{userId}")
+    void editUser(@PathVariable("userId") Long userId,
+            @Valid @RequestBody EditUserRequestDto editUserDto) {
+
+        userService.editUser(userId, editUserDto);
     }
 
-    @PutMapping("/{userId}/membership")
-    UserResponseDto updateUserMembership(@PathVariable("userId") Long userId,
+    @PatchMapping("/{userId}/membership")
+    void updateUserMembership(@PathVariable("userId") Long userId,
      @RequestBody UserMembershipRequest userMembershipRequest) {
 
-        return userService.updateUserHackathonMemership(userId, userMembershipRequest);
+        userService.updateUserHackathonMembership(userId, userMembershipRequest);
     }
 
     @PatchMapping("/{userId}/block")
-    UserResponseDto blockUser(@PathVariable("userId") Long userId) {
-        return userService.blockUser(userId);
+    void blockUser(@PathVariable("userId") Long userId) {
+        userService.blockUser(userId);
     }
 
     @PostMapping("/{userId}/schedule")
