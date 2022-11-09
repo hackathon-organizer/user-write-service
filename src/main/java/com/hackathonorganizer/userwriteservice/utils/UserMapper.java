@@ -1,6 +1,6 @@
 package com.hackathonorganizer.userwriteservice.utils;
 
-import com.hackathonorganizer.userwriteservice.user.dto.UserResponseDto;
+import com.hackathonorganizer.userwriteservice.user.model.dto.UserResponseDto;
 import com.hackathonorganizer.userwriteservice.user.model.User;
 import lombok.experimental.UtilityClass;
 

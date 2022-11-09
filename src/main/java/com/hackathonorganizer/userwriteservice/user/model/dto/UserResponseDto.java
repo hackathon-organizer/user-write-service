@@ -1,6 +1,6 @@
-package com.hackathonorganizer.userwriteservice.user.dto;
+package com.hackathonorganizer.userwriteservice.user.model.dto;
 
-import com.hackathonorganizer.userwriteservice.tag.model.Tag;
+import com.hackathonorganizer.userwriteservice.user.model.Tag;
 import com.hackathonorganizer.userwriteservice.user.model.AccountType;
 
 import java.util.List;

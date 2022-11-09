@@ -1,9 +1,8 @@
 package com.hackathonorganizer.userwriteservice.user.controller;
 
-import com.hackathonorganizer.userwriteservice.user.dto.EditUserRequestDto;
-import com.hackathonorganizer.userwriteservice.user.dto.ScheduleMeetingRequest;
-import com.hackathonorganizer.userwriteservice.user.dto.UserMembershipRequest;
-import com.hackathonorganizer.userwriteservice.user.dto.UserResponseDto;
+import com.hackathonorganizer.userwriteservice.user.model.dto.EditUserRequestDto;
+import com.hackathonorganizer.userwriteservice.user.model.dto.ScheduleMeetingRequest;
+import com.hackathonorganizer.userwriteservice.user.model.dto.UserMembershipRequest;
 import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntry;
 import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntryRequest;
 import com.hackathonorganizer.userwriteservice.user.service.UserService;

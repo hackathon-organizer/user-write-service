@@ -1,8 +1,8 @@
 package com.hackathonorganizer.userwriteservice.user.service;
 
-import com.hackathonorganizer.userwriteservice.user.dto.EditUserRequestDto;
-import com.hackathonorganizer.userwriteservice.user.dto.ScheduleMeetingRequest;
-import com.hackathonorganizer.userwriteservice.user.dto.UserMembershipRequest;
+import com.hackathonorganizer.userwriteservice.user.model.dto.EditUserRequestDto;
+import com.hackathonorganizer.userwriteservice.user.model.dto.ScheduleMeetingRequest;
+import com.hackathonorganizer.userwriteservice.user.model.dto.UserMembershipRequest;
 import com.hackathonorganizer.userwriteservice.user.exception.ScheduleException;
 import com.hackathonorganizer.userwriteservice.user.exception.UserException;
 import com.hackathonorganizer.userwriteservice.user.keycloak.KeycloakService;

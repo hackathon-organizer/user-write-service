@@ -1,4 +1,4 @@
-package com.hackathonorganizer.userwriteservice.tag.model;
+package com.hackathonorganizer.userwriteservice.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

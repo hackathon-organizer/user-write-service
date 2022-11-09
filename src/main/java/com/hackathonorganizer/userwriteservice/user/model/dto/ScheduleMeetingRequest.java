@@ -1,4 +1,4 @@
-package com.hackathonorganizer.userwriteservice.user.dto;
+package com.hackathonorganizer.userwriteservice.user.model.dto;
 
 public record ScheduleMeetingRequest(
         Long teamId,

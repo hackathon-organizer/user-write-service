@@ -1,7 +1,6 @@
-package com.hackathonorganizer.userwriteservice.user.dto;
+package com.hackathonorganizer.userwriteservice.user.model.dto;
 
-import com.hackathonorganizer.userwriteservice.tag.dto.TagEditDto;
-import com.hackathonorganizer.userwriteservice.tag.model.Tag;
+import com.hackathonorganizer.userwriteservice.user.model.Tag;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
