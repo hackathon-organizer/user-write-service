@@ -1,6 +1,6 @@
 package com.hackathonorganizer.userwriteservice.user.keycloak;
 
-import com.hackathonorganizer.userwriteservice.user.exception.KeycloakException;
+import com.hackathonorganizer.userwriteservice.exception.KeycloakException;
 import com.hackathonorganizer.userwriteservice.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.Keycloak;

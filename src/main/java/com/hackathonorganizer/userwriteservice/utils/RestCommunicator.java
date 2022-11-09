@@ -1,14 +1,12 @@
 package com.hackathonorganizer.userwriteservice.utils;
 
-import com.hackathonorganizer.userwriteservice.user.exception.UserException;
+import com.hackathonorganizer.userwriteservice.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
-
-import javax.naming.ServiceUnavailableException;
 
 @Component
 @RequiredArgsConstructor

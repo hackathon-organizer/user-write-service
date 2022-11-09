@@ -1,4 +1,4 @@
-package com.hackathonorganizer.userwriteservice.user.exception;
+package com.hackathonorganizer.userwriteservice.exception;
 
 public class KeycloakException extends RuntimeException {
 
