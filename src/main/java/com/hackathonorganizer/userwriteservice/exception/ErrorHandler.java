@@ -1,30 +1,33 @@
 package com.hackathonorganizer.userwriteservice.exception;
 
 import com.hackathonorganizer.userwriteservice.user.exception.KeycloakException;
-import lombok.extern.slf4j.Slf4j;
+import com.hackathonorganizer.userwriteservice.user.exception.UserException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @RestControllerAdvice
-@Slf4j
-class ErrorHandler {
+class ErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({KeycloakException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ErrorResponse handleKeyCloakException(KeycloakException exception) {
-        log.error(exception.getMessage());
-        return new ErrorResponse(HttpStatus.BAD_REQUEST.toString(),
-                exception.getMessage(), LocalDateTime.now());
+    ResponseEntity<ErrorResponse> handleKeyCloakException(KeycloakException ex) {
+
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(),
+                List.of(ex.getMessage()));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    @ExceptionHandler({UserNotFoundException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    ErrorResponse handleUserNotFoundException(UserNotFoundException exception) {
-        return new ErrorResponse(HttpStatus.NOT_FOUND.toString(),
-                exception.getMessage(), LocalDateTime.now());
+    @ExceptionHandler({UserException.class})
+    ResponseEntity<ErrorResponse> handleUserException(UserException ex) {
+
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(),
+                List.of(ex.getMessage()));
+
+        return ResponseEntity.status(ex.getHttpStatus()).body(errorResponse);
     }
 }
