@@ -9,7 +9,10 @@ import com.hackathonorganizer.userwriteservice.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import java.security.Principal;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -20,6 +23,7 @@ class UserController {
     private final UserService userService;
 
     @PatchMapping("/{userId}")
+    @RolesAllowed({"USER"})
     void editUser(@PathVariable("userId") Long userId,
             @Valid @RequestBody EditUserRequestDto editUserDto) {
 
@@ -34,34 +38,56 @@ class UserController {
     }
 
     @PatchMapping("/{userId}/block")
+    @RolesAllowed({"ORGANIZER"})
     void blockUser(@PathVariable("userId") Long userId) {
+
         userService.blockUser(userId);
     }
 
     @PostMapping("/{userId}/schedule")
-    void createUserScheduleEntry(@PathVariable("userId") Long userId,
-            @RequestBody Set<ScheduleEntry> scheduleEntries) {
+    @RolesAllowed({"MENTOR","ORGANIZER"})
+    void createUserScheduleEntry(Principal principal, @PathVariable("userId") Long userId,
+            @RequestBody ScheduleEntry scheduleEntry) {
 
-        userService.updateUserScheduleEntry(userId, scheduleEntries);
+        userService.createUserScheduleEntry(principal, userId, scheduleEntry);
     }
 
-    @PatchMapping("/schedule")
-    boolean updateUserSchedule(@RequestBody ScheduleMeetingRequest meetingRequest) {
+    @PutMapping("/{userId}/schedule")
+    @RolesAllowed({"MENTOR","ORGANIZER"})
+    void updateUserScheduleEntries(Principal principal, @PathVariable("userId") Long userId,
+            @RequestBody List<ScheduleEntry> scheduleEntries) {
 
-        return userService.updateUserHackathonSchedule(meetingRequest);
+        userService.updateUserScheduleEntries(principal, userId, scheduleEntries);
     }
 
-    @DeleteMapping("/schedule/{entryId}")
-    void deleteScheduleEntry(@PathVariable("entryId") Long entryId) {
+    @DeleteMapping("/{userId}/schedule/{entryId}")
+    @RolesAllowed({"MENTOR","ORGANIZER"})
+    void deleteScheduleEntry(@PathVariable("userId") Long userId,
+            @PathVariable("entryId") Long entryId) {
 
-        userService.deleteScheduleEntry(entryId);
+        userService.deleteScheduleEntry(userId, entryId);
     }
 
-    @PatchMapping("/schedule/{entryId}")
-    void updateUserScheduleEntry(@PathVariable("entryId") Long entryId,
+    @PatchMapping("/{userId}/schedule/{entryId}")
+    @RolesAllowed({"MENTOR","ORGANIZER"})
+    void updateUserScheduleEntry(
+            Principal principal,
+            @PathVariable("userId") Long userId,
+            @PathVariable("entryId") Long entryId,
             @RequestBody ScheduleEntryRequest scheduleEntry) {
 
-        userService.updateUserScheduleEntryTime(entryId, scheduleEntry);
+        userService.updateUserScheduleEntryTime(principal, userId, entryId, scheduleEntry);
+    }
+
+    @PatchMapping("/schedule/{entryId}/meeting")
+    @RolesAllowed({"TEAM_OWNER","ORGANIZER"})
+    boolean assignTeamToMeetingWithMentor(
+            Principal principal,
+            @PathVariable("entryId") Long entryId,
+            @RequestBody ScheduleMeetingRequest scheduleMeetingRequest) {
+
+        return userService.updateScheduleEntryAvailabilityStatus(principal, entryId,
+                scheduleMeetingRequest);
     }
 
 }

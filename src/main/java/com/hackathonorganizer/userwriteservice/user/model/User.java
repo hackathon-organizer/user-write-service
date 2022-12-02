@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -21,6 +22,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user_profile")
+@Slf4j
 public class User {
 
     @Id
@@ -31,6 +33,7 @@ public class User {
     private String username;
 
     @NotEmpty
+    @Column(updatable = false)
     private String keyCloakId;
 
     @NotNull
@@ -57,4 +60,11 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<ScheduleEntry> scheduleEntries = new HashSet<>();
+
+    public void addScheduleEntry(ScheduleEntry scheduleEntry) {
+
+        if (!scheduleEntries.add(scheduleEntry)){
+            log.info("Schedule entry with id: {} already exist", scheduleEntry.getId());
+        }
+    }
 }
