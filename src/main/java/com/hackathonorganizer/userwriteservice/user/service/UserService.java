@@ -1,27 +1,20 @@
 package com.hackathonorganizer.userwriteservice.user.service;
 
-import com.hackathonorganizer.userwriteservice.user.model.dto.EditUserRequestDto;
-import com.hackathonorganizer.userwriteservice.user.model.dto.ScheduleMeetingRequest;
-import com.hackathonorganizer.userwriteservice.user.model.dto.UserMembershipRequest;
+import com.hackathonorganizer.userwriteservice.user.model.dto.*;
 import com.hackathonorganizer.userwriteservice.exception.ScheduleException;
 import com.hackathonorganizer.userwriteservice.exception.UserException;
 import com.hackathonorganizer.userwriteservice.user.keycloak.KeycloakService;
 import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntry;
-import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntryRequest;
 import com.hackathonorganizer.userwriteservice.user.model.User;
 import com.hackathonorganizer.userwriteservice.user.repository.ScheduleEntryRepository;
 import com.hackathonorganizer.userwriteservice.user.repository.UserRepository;
-import com.hackathonorganizer.userwriteservice.utils.RestCommunicator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +24,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final KeycloakService keyCloakService;
     private final ScheduleEntryRepository scheduleEntryRepository;
-    private final RestCommunicator restCommunicator;
-
     public void createUser(String keyCloakId, String username) {
 
         User user = User.builder()
@@ -49,8 +40,7 @@ public class UserService {
 
         User user = getUserById(userId);
 
-        user.setGithubProfileUrl(editUserDto.githubProfileUrl());
-        user.setProfilePictureUrl(editUserDto.profilePictureUrl());
+        user.setDescription(editUserDto.description());
         user.setTags(editUserDto.tags());
 
         userRepository.save(user);
@@ -68,37 +58,69 @@ public class UserService {
         log.info("User with id: {} account blocked", userId);
     }
 
-    public void updateUserHackathonMembership(Long userId, UserMembershipRequest userMembershipRequest) {
-
-        User user = getUserById(userId);
-
-        user.setCurrentHackathonId(userMembershipRequest.currentHackathonId());
-        user.setCurrentTeamId(userMembershipRequest.currentTeamId());
-
-        userRepository.save(user);
-
-        log.info("User with id: {} membership updated successfully", userId);
-    }
-
-    public void createUserScheduleEntry(Principal principal, Long userId,
-            ScheduleEntry scheduleEntry) {
+    public void updateUserHackathonMembership(Long userId, UserMembershipRequest userMembershipRequest, Principal principal) {
 
         User user = getUserById(userId);
 
         if (verifyUser(principal, user.getKeyCloakId())) {
 
-        scheduleEntry.setUser(user);
-        scheduleEntry.setHackathonId(user.getCurrentHackathonId());
+            user.setCurrentHackathonId(userMembershipRequest.currentHackathonId());
+            user.setCurrentTeamId(userMembershipRequest.currentTeamId());
 
-        user.addScheduleEntry(scheduleEntry);
-        userRepository.save(user);
+            userRepository.save(user);
 
-        log.info("User with id: {} schedule created successfully", user.getId());
+            log.info("User with id: {} membership updated successfully", userId);
+        } else {
+            log.info("Can't update user {} membership", user.getId());
+
+            throw new UserException("Can't update user: " + user.getId() + " membership",
+                    HttpStatus.FORBIDDEN);
         }
     }
 
-    public void updateUserScheduleEntries(Principal principal, Long userId,
-            List<ScheduleEntry> scheduleEntries) {
+    public ScheduleEntryResponse createUserScheduleEntry(Long userId, ScheduleEntryRequest scheduleEntryRequest,
+                                                         Principal principal) {
+
+        User user = getUserById(userId);
+
+        if (verifyUser(principal, user.getKeyCloakId())) {
+
+            ScheduleEntry scheduleEntry = ScheduleEntry.builder()
+                    .hackathonId(scheduleEntryRequest.hackathonId())
+                    .info(scheduleEntryRequest.info())
+                    .entryColor(scheduleEntryRequest.entryColor())
+                    .sessionStart(scheduleEntryRequest.sessionStart())
+                    .sessionEnd(scheduleEntryRequest.sessionEnd())
+                    .user(user)
+                    .build();
+
+            ScheduleEntry savedEntry = scheduleEntryRepository.save(scheduleEntry);
+
+            user.addScheduleEntry(savedEntry);
+            userRepository.save(user);
+
+            log.info("User with id: {} schedule created successfully", user.getId());
+
+            return new ScheduleEntryResponse(
+                    savedEntry.getId(),
+                    user.getUsername(),
+                    savedEntry.getTeamId(),
+                    savedEntry.getHackathonId(),
+                    savedEntry.getInfo(),
+                    savedEntry.getEntryColor(),
+                    savedEntry.isAvailable(),
+                    savedEntry.getSessionStart(),
+                    savedEntry.getSessionEnd()
+            );
+        } else {
+            log.info("Can't create new schedule entry for user with id: {}", user.getId());
+
+            throw new UserException("Can't create new schedule entry for user with id: " + user.getId(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public void updateUserScheduleEntries(Long userId, List<ScheduleEntryRequest> scheduleEntries, Principal principal) {
 
         User user = getUserById(userId);
 
@@ -106,66 +128,69 @@ public class UserService {
 
             scheduleEntries.forEach(entry -> {
 
-                ScheduleEntry entryToUpdate = getScheduleEntryById(entry.getId());
+                ScheduleEntry entryToUpdate = getScheduleEntryById(entry.id());
 
-                entryToUpdate.setSessionStart(entry.getSessionStart());
-                entryToUpdate.setSessionEnd(entry.getSessionEnd());
-                entryToUpdate.setEntryColor(entry.getEntryColor());
-                entryToUpdate.setInfo(entry.getInfo());
+                entryToUpdate.setSessionStart(entry.sessionStart());
+                entryToUpdate.setSessionEnd(entry.sessionEnd());
+                entryToUpdate.setEntryColor(entry.entryColor());
+                entryToUpdate.setInfo(entry.info());
 
                 scheduleEntryRepository.save(entryToUpdate);
             });
 
             log.info("User with id: {} schedule updated successfully", user.getId());
+        }  else {
+            log.info("Can't update user {} schedule", user.getId());
+
+            throw new UserException("Can't update user: " + user.getId() + " schedule",
+                    HttpStatus.FORBIDDEN);
         }
     }
 
-    public boolean updateScheduleEntryAvailabilityStatus(Principal principal,
-             Long entryId, ScheduleMeetingRequest meetingRequest) {
+    public boolean updateScheduleEntryAvailabilityStatus(Long entryId, ScheduleMeetingRequest meetingRequest, Principal principal) {
 
         User user = getUserById(meetingRequest.teamOwnerId());
         ScheduleEntry scheduleEntry = getScheduleEntryById(entryId);
 
         if (verifyUser(principal, user.getKeyCloakId()) &&
-        user.getCurrentTeamId().equals(meetingRequest.teamId())) {
+                user.getCurrentTeamId().equals(meetingRequest.teamId())) {
 
-//        boolean isOwner = restCommunicator.checkIfUserIsTeamOwner(meetingRequest.teamOwnerId(),
-//                meetingRequest.teamId());
+            if (scheduleEntry.isAvailable()) {
+                scheduleEntry.setTeamId(meetingRequest.teamId());
+                scheduleEntry.setAvailable(false);
 
-        if (scheduleEntry.isAvailable()) {
-            scheduleEntry.setTeamId(meetingRequest.teamId());
-            scheduleEntry.setAvailable(false);
+                log.info("Team with id: {} assigned to user schedule successfully"
+                        , meetingRequest.teamId());
+            } else {
+                scheduleEntry.setTeamId(null);
+                scheduleEntry.setAvailable(true);
 
-            log.info("Team with id: {} assigned to user schedule successfully"
-                    , meetingRequest.teamId());
-        } else {
-            scheduleEntry.setTeamId(null);
-            scheduleEntry.setAvailable(true);
+                log.info("Team with id: {} unassigned from user schedule successfully",
+                        meetingRequest.teamId());
+            }
 
-            log.info("Team with id: {} unassigned from user schedule successfully",
-                    meetingRequest.teamId());
-        }
+            ScheduleEntry savedEntry = scheduleEntryRepository.save(scheduleEntry);
 
-        ScheduleEntry savedEntry = scheduleEntryRepository.save(scheduleEntry);
+            log.info("Schedule entry updated successfully");
 
-        log.info("Schedule entry updated successfully");
-
-        return savedEntry.isAvailable();
+            return savedEntry.isAvailable();
 
         } else {
             log.info("Only team owners can assign team for meeting");
-            return false;
+
+            throw new UserException("Only team owners can assign team for meeting", HttpStatus.FORBIDDEN);
         }
     }
 
-    public void updateUserScheduleEntryTime(Principal principal,
-            Long userId, Long entryId, ScheduleEntryRequest scheduleEntryRequest) {
+    public void updateUserScheduleEntryTime(Long userId, Long entryId, ScheduleEntryRequest scheduleEntryRequest,
+                                            Principal principal) {
 
         User user = getUserById(userId);
 
         ScheduleEntry scheduleEntry = getScheduleEntryById(entryId);
 
-        if (verifyUser(principal, user.getKeyCloakId())) {
+        if (verifyUser(principal, user.getKeyCloakId())
+                && containScheduleEntry(user, scheduleEntryRequest.id())) {
 
             scheduleEntry.setSessionStart(scheduleEntryRequest.sessionStart());
             scheduleEntry.setSessionEnd(scheduleEntryRequest.sessionEnd());
@@ -176,25 +201,26 @@ public class UserService {
         }
     }
 
-    public void deleteScheduleEntry(Long userId, Long entryId) {
+    public void deleteScheduleEntry(Long userId, Long entryId, Principal principal) {
 
-        // TODO check if entry belongs to user
+        User user = getUserById(userId);
 
-        scheduleEntryRepository.deleteById(entryId);
+        if (verifyUser(principal, user.getKeyCloakId()) && containScheduleEntry(user, entryId)) {
 
-        log.info("Schedule entry with id: {} deleted successfully", entryId);
+            scheduleEntryRepository.deleteById(entryId);
+
+            log.info("Schedule entry with id: {} deleted successfully", entryId);
+        }
     }
 
     private User getUserById(Long userId) {
-        return  userRepository.findById(userId).orElseThrow(
-                () -> new UserException(String.format("User with id: %d not found", userId),
-                        HttpStatus.NOT_FOUND));
+        return userRepository.findById(userId).orElseThrow(
+                () -> new UserException(String.format("User with id: %d not found", userId), HttpStatus.NOT_FOUND));
     }
 
     private ScheduleEntry getScheduleEntryById(Long entryId) {
         return scheduleEntryRepository.findById(entryId)
-                .orElseThrow(() -> new ScheduleException(
-                        String.format("Schedule entry with id: %d not found", entryId),
+                .orElseThrow(() -> new ScheduleException(String.format("Schedule entry with id: %d not found", entryId),
                         HttpStatus.NOT_FOUND));
     }
 
@@ -208,5 +234,9 @@ public class UserService {
 
             throw new UserException("User verification failed", HttpStatus.FORBIDDEN);
         }
+    }
+
+    private boolean containScheduleEntry(User user, Long entryId) {
+        return user.getScheduleEntries().stream().anyMatch(entry -> entry.getId().equals(entryId));
     }
 }

@@ -28,7 +28,7 @@ keycloak:
   realm: hackathon-organizer
   masterRealm: master
   clientId: admin-cli
-  username: admin
-  password: admin
+  username: ${keycloak.login}
+  password: ${keycloak.password}
 server:
   port: 0

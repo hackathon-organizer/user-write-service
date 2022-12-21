@@ -11,7 +11,7 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({UserException.class, ServiceUnavailableException.class})
+    @ExceptionHandler({UserException.class, ServiceUnavailableException.class, KeycloakException.class, ScheduleException.class})
     public ResponseEntity<ErrorResponse> handleUserExceptions(UserException ex) {
 
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(),

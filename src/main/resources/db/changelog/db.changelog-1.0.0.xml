@@ -130,7 +130,27 @@
 
     <changeSet id="add-event-availability-flag" author="Yankes">
         <addColumn tableName="schedule_entry">
-            <column name="is_available" type="bool" defaultValue="false"/>
+            <column name="is_available" type="bool" defaultValue="true"/>
         </addColumn>
+    </changeSet>
+
+    <changeSet id="add-user-description-and-make-username-unique" author="Yankes">
+        <addColumn tableName="user_profile">
+            <column name="description" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <addUniqueConstraint
+                columnNames="username"
+                constraintName="username_unique_constraint"
+                tableName="user_profile"
+        />
+
+        <addUniqueConstraint
+                columnNames="key_cloak_id"
+                constraintName="key_cloak_id_unique_constraint"
+                tableName="user_profile"
+        />
     </changeSet>
 </databaseChangeLog>

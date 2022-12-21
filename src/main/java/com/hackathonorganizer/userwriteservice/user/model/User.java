@@ -32,6 +32,8 @@ public class User {
     @NotEmpty
     private String username;
 
+    private String description;
+
     @NotEmpty
     @Column(updatable = false)
     private String keyCloakId;
@@ -56,14 +58,14 @@ public class User {
     @JoinTable(name = "user_tags",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
-    private List<Tag> tags = new ArrayList<>();
+    private Set<Tag> tags = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<ScheduleEntry> scheduleEntries = new HashSet<>();
 
     public void addScheduleEntry(ScheduleEntry scheduleEntry) {
 
-        if (!scheduleEntries.add(scheduleEntry)){
+        if (!scheduleEntries.add(scheduleEntry)) {
             log.info("Schedule entry with id: {} already exist", scheduleEntry.getId());
         }
     }

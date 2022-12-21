@@ -20,10 +20,8 @@ public class KeycloakService {
     public void blockInKeycloak(User user) {
         try {
             Keycloak keycloak = buildKeyCloak();
-            UserResource userResource = getUserResource(user.getKeyCloakId(),
-                    keycloak);
-            UserRepresentation userRepresentation =
-                    userResource.toRepresentation();
+            UserResource userResource = getUserResource(user.getKeyCloakId(), keycloak);
+            UserRepresentation userRepresentation = userResource.toRepresentation();
             userRepresentation.setEnabled(false);
             userResource.update(userRepresentation);
         } catch (Exception exception) {
@@ -32,8 +30,7 @@ public class KeycloakService {
     }
 
     private UserResource getUserResource(String keyCloakId, Keycloak keycloak) {
-        RealmResource realmResource =
-                keycloak.realm(keycloakProperties.getRealm());
+        RealmResource realmResource = keycloak.realm(keycloakProperties.getRealm());
         UsersResource usersResource = realmResource.users();
         return usersResource.get(keyCloakId);
     }

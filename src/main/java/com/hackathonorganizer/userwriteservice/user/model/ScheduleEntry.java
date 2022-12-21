@@ -28,7 +28,8 @@ public class ScheduleEntry {
 
     private String entryColor;
 
-    private boolean isAvailable;
+    @Builder.Default
+    private boolean isAvailable = true;
 
     @NotNull
     @DateTimeFormat(pattern = "HH:mm dd-MM-YYYY")

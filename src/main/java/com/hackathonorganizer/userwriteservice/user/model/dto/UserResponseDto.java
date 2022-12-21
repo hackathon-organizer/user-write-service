@@ -4,6 +4,7 @@ import com.hackathonorganizer.userwriteservice.user.model.Tag;
 import com.hackathonorganizer.userwriteservice.user.model.AccountType;
 
 import java.util.List;
+import java.util.Set;
 
 public record UserResponseDto(
 
@@ -11,16 +12,8 @@ public record UserResponseDto(
 
         String username,
 
+        String description,
         String keyCloakId,
-
-        AccountType accountType,
-
-        String githubProfileUrl,
-
-        String profilePictureUrl,
-
-        boolean blocked,
-
-        List<Tag> tags
+        Set<Tag> tags
 ) {
 }

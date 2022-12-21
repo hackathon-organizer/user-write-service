@@ -11,11 +11,8 @@ public class UserMapper {
         return new UserResponseDto(
                 savedUser.getId(),
                 savedUser.getUsername(),
+                savedUser.getDescription(),
                 savedUser.getKeyCloakId(),
-                savedUser.getAccountType(),
-                savedUser.getGithubProfileUrl(),
-                savedUser.getProfilePictureUrl(),
-                savedUser.isBlocked(),
                 savedUser.getTags()
         );
     }
