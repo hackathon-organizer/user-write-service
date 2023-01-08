@@ -107,6 +107,7 @@
             <version>${test.containers.version}</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>

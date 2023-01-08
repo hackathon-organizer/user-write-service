@@ -1,5 +1,6 @@
 package com.hackathonorganizer.userwriteservice.user.controller;
 
+import com.hackathonorganizer.userwriteservice.user.keycloak.Role;
 import com.hackathonorganizer.userwriteservice.user.model.dto.*;
 import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntry;
 import com.hackathonorganizer.userwriteservice.user.service.UserService;
@@ -45,9 +46,8 @@ class UserController {
 
     @PutMapping("/{userId}/schedule")
     @RolesAllowed({"MENTOR", "ORGANIZER"})
-    void updateUserScheduleEntries( @PathVariable("userId") Long userId, @RequestBody List<ScheduleEntryRequest> scheduleEntries,
-                                    Principal principal) {
-        userService.updateUserScheduleEntries(userId, scheduleEntries, principal);
+    void updateUserScheduleEntries(@RequestBody List<ScheduleEntryRequest> scheduleEntries, Principal principal) {
+        userService.updateUserScheduleEntries(scheduleEntries, principal);
     }
 
     @DeleteMapping("/{userId}/schedule/{entryId}")
@@ -68,5 +68,11 @@ class UserController {
     boolean assignTeamToMeetingWithMentor(@PathVariable("entryId") Long entryId, @RequestBody ScheduleMeetingRequest scheduleMeetingRequest,
                                           Principal principal) {
         return userService.updateScheduleEntryAvailabilityStatus(entryId, scheduleMeetingRequest, principal);
+    }
+
+    @PatchMapping("/{userId}/roles")
+    @RolesAllowed("ORGANIZER")
+    void updateUserRole(@PathVariable("userId") Long userId, @RequestBody Role role) {
+        userService.updateUserRole(userId, role);
     }
 }

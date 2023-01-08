@@ -1,13 +1,15 @@
 package com.hackathonorganizer.userwriteservice.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-public class ScheduleException extends BaseException {
+@Getter
+public class BaseException extends RuntimeException{
 
     private final HttpStatus httpStatus;
 
-    public ScheduleException(String message, HttpStatus httpStatus) {
-        super(message, httpStatus);
+    public BaseException(String message, HttpStatus httpStatus) {
+        super(message);
         this.httpStatus = httpStatus;
     }
 }
