@@ -74,8 +74,7 @@ public class UserService {
         } else {
             log.info("Can't update user {} membership", user.getId());
 
-            throw new UserException("Can't update user: " + user.getId() + " membership",
-                    HttpStatus.FORBIDDEN);
+            throw new UserException("Can't update user: " + user.getId() + " membership", HttpStatus.FORBIDDEN);
         }
     }
 
@@ -154,9 +153,6 @@ public class UserService {
 
         ScheduleEntry scheduleEntry = getScheduleEntryById(entryId);
 
-        System.out.println(user.getCurrentTeamId());
-        System.out.println(scheduleEntry.getTeamId());
-
         if (!scheduleEntry.isAvailable() && user.getCurrentTeamId().equals(scheduleEntry.getTeamId())) {
 
             scheduleEntry.setTeamId(null);
@@ -180,16 +176,11 @@ public class UserService {
         return savedEntry.isAvailable();
     }
 
-    public void updateUserScheduleEntryTime(Long userId, Long entryId, ScheduleEntryRequest scheduleEntryRequest,
-                                            Principal principal) {
-
-        User user = getUserById(userId);
+    public void updateUserScheduleEntryTime(Long entryId, ScheduleEntryRequest scheduleEntryRequest, Principal principal) {
 
         ScheduleEntry scheduleEntry = getScheduleEntryById(entryId);
 
-        if (verifyUser(principal, scheduleEntry.getUser().getKeyCloakId())
-                && containScheduleEntry(user, scheduleEntryRequest.id())) {
-
+        if (verifyUser(principal, scheduleEntry.getUser().getKeyCloakId())) {
             scheduleEntry.setSessionStart(scheduleEntryRequest.sessionStart());
             scheduleEntry.setSessionEnd(scheduleEntryRequest.sessionEnd());
 
@@ -235,10 +226,6 @@ public class UserService {
 
             throw new UserException("User verification failed", HttpStatus.FORBIDDEN);
         }
-    }
-
-    private boolean containScheduleEntry(User user, Long entryId) {
-        return user.getScheduleEntries().stream().anyMatch(entry -> entry.getId().equals(entryId));
     }
 
     public void updateUserRole(Long userId, Role role) {

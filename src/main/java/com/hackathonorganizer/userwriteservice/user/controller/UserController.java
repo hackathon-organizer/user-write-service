@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import java.security.Principal;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -50,17 +52,18 @@ class UserController {
         userService.updateUserScheduleEntries(scheduleEntries, principal);
     }
 
+    @PatchMapping("/{userId}/schedule/{entryId}")
+    @RolesAllowed({"MENTOR", "ORGANIZER"})
+    void updateUserScheduleEntryTime(@PathVariable("entryId") Long entryId, @RequestBody ScheduleEntryRequest scheduleEntry,
+                                  Principal principal) {
+
+        userService.updateUserScheduleEntryTime(entryId, scheduleEntry, principal);
+    }
+
     @DeleteMapping("/{userId}/schedule/{entryId}")
     @RolesAllowed({"MENTOR", "ORGANIZER"})
     void deleteScheduleEntry(@PathVariable("userId") Long userId, @PathVariable("entryId") Long entryId, Principal principal) {
         userService.deleteScheduleEntry(userId, entryId, principal);
-    }
-
-    @PatchMapping("/{userId}/schedule/{entryId}")
-    @RolesAllowed({"MENTOR", "ORGANIZER"})
-    void updateUserScheduleEntry(@PathVariable("userId") Long userId, @PathVariable("entryId") Long entryId,
-            @RequestBody ScheduleEntryRequest scheduleEntry, Principal principal) {
-        userService.updateUserScheduleEntryTime(userId, entryId, scheduleEntry, principal);
     }
 
     @PatchMapping("/schedule/{entryId}/meeting")

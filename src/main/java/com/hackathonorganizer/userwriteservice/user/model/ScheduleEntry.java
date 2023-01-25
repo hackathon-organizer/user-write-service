@@ -6,6 +6,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Setter
@@ -33,11 +35,11 @@ public class ScheduleEntry {
 
     @NotNull
     @DateTimeFormat(pattern = "HH:mm dd-MM-YYYY")
-    private LocalDateTime sessionStart;
+    private OffsetDateTime sessionStart;
 
     @NotNull
     @DateTimeFormat(pattern = "HH:mm dd-MM-YYYY")
-    private LocalDateTime sessionEnd;
+    private OffsetDateTime sessionEnd;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id", nullable=false)

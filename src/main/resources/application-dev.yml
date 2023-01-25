@@ -1,24 +1,20 @@
 spring:
-  profiles:
-    active: dev
   config:
-    import: optional:configserver:http://${CONFIG_SERVER_HOST}:${CONFIG_SERVER_PORT}
+    import: optional:configserver:http://localhost:8888/
   cloud:
     vault:
       generic:
         enabled: true
         profile-separator: '/'
         default-context: user-write-service
-  application:
-    name: user-write-service
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.xml
   jpa:
-    hibernate:
-      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+  application:
+    name: user-write-service
 keycloak:
   authUrl: http://localhost:8080/auth
   realm: hackathon-organizer
