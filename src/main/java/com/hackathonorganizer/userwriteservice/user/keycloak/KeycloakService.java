@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.UserResource;
-import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.admin.client.resource.*;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.http.HttpStatus;
@@ -23,6 +21,7 @@ import java.util.List;
 public class KeycloakService {
 
     private final KeycloakProperties keycloakProperties;
+    private final String REALM_NAME = "hackathon-organizer";
 
     public void blockInKeycloak(User user) {
         try {
@@ -32,7 +31,7 @@ public class KeycloakService {
             userRepresentation.setEnabled(false);
             userResource.update(userRepresentation);
         } catch (Exception exception) {
-            throw new KeycloakException(exception.getMessage());
+            throw new KeycloakException("Can't block user " + user.getId(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -52,27 +51,53 @@ public class KeycloakService {
                 .build();
     }
 
-    public void updateUserRoles(String keycloakId, Role newRole) {
+    public void updateUserRole(String keycloakId, Role newRole) {
 
         try {
-            Keycloak keycloak = buildKeyCloak();
-            String realm = "hackathon-organizer";
+            RealmResource realmResource = buildKeyCloak().realm(REALM_NAME);
 
-            UsersResource usersResource = keycloak.realm(realm).users();
+            RolesResource realmRoles = realmResource.roles();
+            RoleRepresentation userNewRole = realmRoles.list().stream().filter(role -> role.getName().equals(newRole.name())).findFirst()
+                    .orElseThrow(() -> new UserException("Role " + newRole + " not found", HttpStatus.NOT_FOUND));
+
+            UsersResource usersResource = realmResource.users();
             UserResource userResource = usersResource.get(keycloakId);
+            RoleMappingResource roleMappingResource = userResource.roles();
 
-            List<RoleRepresentation> roles = userResource.roles().realmLevel().listEffective();
-            RoleRepresentation foundedRole = userResource.roles().realmLevel().listAvailable()
-                    .stream().filter(role -> role.getName().equals(newRole.name())).toList().get(0);
+            RoleScopeResource roleScopeResource = roleMappingResource.realmLevel();
+            List<RoleRepresentation> rolesRepresentation = roleScopeResource.listAll();
 
-            roles.add(foundedRole);
-            userResource.roles().realmLevel().add(roles);
+            rolesRepresentation.add(userNewRole);
+            userResource.roles().realmLevel().add(rolesRepresentation);
 
             log.info("Role {} added to user: {}", newRole, keycloakId);
         } catch (Exception ex) {
             log.info("Can't update user roles");
             ex.printStackTrace();
             throw new UserException("Can't update user roles", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public void removeRoles(String keycloakId) {
+        try {
+            RealmResource realmResource = buildKeyCloak().realm(REALM_NAME);
+
+            UsersResource usersResource =  realmResource.users();
+            UserResource userResource = usersResource.get(keycloakId);
+
+            RolesResource realmRoles = realmResource.roles();
+            List<RoleRepresentation> defaultRoles = realmRoles.list().stream()
+                    .filter(role -> role.getName().equals("default-roles-hackathon-organizer") ||
+                            role.getName().equals("USER")).toList();
+
+            userResource.roles().realmLevel().remove(realmRoles.list());
+            userResource.roles().realmLevel().add(defaultRoles);
+
+            log.info("Roles cleared from user: {}", keycloakId);
+        } catch (Exception ex) {
+            log.info("Can't remove user roles");
+            ex.printStackTrace();
+            throw new UserException("Can't remove user roles", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -2,16 +2,14 @@ package com.hackathonorganizer.userwriteservice.user.controller;
 
 import com.hackathonorganizer.userwriteservice.user.keycloak.Role;
 import com.hackathonorganizer.userwriteservice.user.model.dto.*;
-import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntry;
 import com.hackathonorganizer.userwriteservice.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import java.security.Principal;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/v1/write/users")
@@ -73,9 +71,10 @@ class UserController {
         return userService.updateScheduleEntryAvailabilityStatus(entryId, scheduleMeetingRequest, principal);
     }
 
-    @PatchMapping("/{userId}/roles")
+    @PatchMapping(value = "/{userId}/roles")
     @RolesAllowed("ORGANIZER")
-    void updateUserRole(@PathVariable("userId") Long userId, @RequestBody Role role) {
-        userService.updateUserRole(userId, role);
+    void updateUserRole(@PathVariable("userId") Long userId, @RequestBody Role role, Principal principal) {
+
+        userService.updateUserRole(userId, role, principal);
     }
 }

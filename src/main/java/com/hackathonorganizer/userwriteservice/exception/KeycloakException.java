@@ -1,8 +1,10 @@
 package com.hackathonorganizer.userwriteservice.exception;
 
-public class KeycloakException extends RuntimeException {
+import org.springframework.http.HttpStatus;
 
-    public KeycloakException(String message) {
-        super(message);
+public class KeycloakException extends BaseException {
+
+    public KeycloakException(String message, HttpStatus httpStatus) {
+        super(message, httpStatus);
     }
 }

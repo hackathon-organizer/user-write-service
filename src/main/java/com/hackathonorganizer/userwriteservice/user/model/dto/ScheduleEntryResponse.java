@@ -14,6 +14,8 @@ public record ScheduleEntryResponse (
 
     Long teamId,
 
+    Long userId,
+
     Long hackathonId,
 
     String info,

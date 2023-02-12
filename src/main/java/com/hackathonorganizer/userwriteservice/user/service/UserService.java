@@ -32,7 +32,9 @@ public class UserService {
                 .keyCloakId(keyCloakId)
                 .build();
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        keyCloakService.updateUserRole(savedUser.getKeyCloakId(), Role.USER);
 
         log.info("User with username: {} created successfully", username);
     }
@@ -105,6 +107,7 @@ public class UserService {
                     savedEntry.getId(),
                     user.getUsername(),
                     savedEntry.getTeamId(),
+                    user.getId(),
                     savedEntry.getHackathonId(),
                     savedEntry.getInfo(),
                     savedEntry.getEntryColor(),
@@ -215,9 +218,6 @@ public class UserService {
 
     private boolean verifyUser(Principal principal, String userKeycloakId) {
 
-        System.out.println(principal.getName());
-        System.out.println(userKeycloakId);
-
         if (principal.getName().equals(userKeycloakId)) {
             return true;
         } else {
@@ -228,9 +228,19 @@ public class UserService {
         }
     }
 
-    public void updateUserRole(Long userId, Role role) {
+    public void updateUserRole(Long userId, Role role, Principal principal) {
 
+        User organizer = userRepository.findByKeyCloakId(principal.getName()).orElseThrow(
+                () -> new UserException(String.format("User with id: %d not found", userId), HttpStatus.NOT_FOUND));
         User user = getUserById(userId);
-        keyCloakService.updateUserRoles(user.getKeyCloakId(), role);
+
+        if (organizer.getCurrentHackathonId().equals(user.getCurrentHackathonId())) {
+            keyCloakService.updateUserRole(user.getKeyCloakId(), role);
+        } else {
+            log.info("User {} and Organizer {} are not participants of the same hackathon", userId, organizer.getId());
+
+            throw new UserException(String.format("User %d and Organizer %d are not participants of the same hackathon",
+                    userId, organizer.getId()), HttpStatus.FORBIDDEN);
+        }
     }
 }
