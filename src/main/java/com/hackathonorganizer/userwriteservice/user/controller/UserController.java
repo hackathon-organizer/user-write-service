@@ -20,60 +20,77 @@ class UserController {
 
     @PatchMapping("/{userId}")
     @RolesAllowed({"USER"})
-    void editUser(@PathVariable("userId") Long userId, @RequestBody EditUserRequestDto editUserDto) {
-        userService.editUser(userId, editUserDto);
+    public void editUser(@PathVariable("userId") Long userId,
+                         @RequestBody UserEditDto userEditDto,
+                         Principal principal) {
+
+        userService.editUser(userId, userEditDto, principal);
     }
 
     @PatchMapping("/{userId}/membership")
     @RolesAllowed({"USER"})
-    void updateUserMembership(@PathVariable("userId") Long userId, @RequestBody UserMembershipRequest userMembershipRequest,
-                              Principal principal) {
+    public void updateUserMembership(@PathVariable("userId") Long userId,
+                                     @RequestBody UserMembershipRequest userMembershipRequest,
+                                     Principal principal) {
+
         userService.updateUserHackathonMembership(userId, userMembershipRequest, principal);
     }
 
     @PatchMapping("/{userId}/block")
     @RolesAllowed({"ORGANIZER"})
-    void blockUser(@PathVariable("userId") Long userId) {
-        userService.blockUser(userId);
+    public void blockUser(@PathVariable("userId") Long userId, Principal principal) {
+
+        userService.blockUser(userId, principal);
     }
 
     @PostMapping("/{userId}/schedule")
     @RolesAllowed({"MENTOR", "ORGANIZER"})
-    ScheduleEntryResponse createUserScheduleEntry(@PathVariable("userId") Long userId, @RequestBody ScheduleEntryRequest scheduleEntryRequest,
-                                                  Principal principal) {
+    public ScheduleEntryResponse createUserScheduleEntry(@PathVariable("userId") Long userId,
+                                                         @RequestBody ScheduleEntryRequest scheduleEntryRequest,
+                                                         Principal principal) {
+
         return userService.createUserScheduleEntry(userId, scheduleEntryRequest, principal);
     }
 
     @PutMapping("/{userId}/schedule")
     @RolesAllowed({"MENTOR", "ORGANIZER"})
-    void updateUserScheduleEntries(@RequestBody List<ScheduleEntryRequest> scheduleEntries, Principal principal) {
-        userService.updateUserScheduleEntries(scheduleEntries, principal);
+    public void updateUserScheduleEntries(@PathVariable("userId") Long userId,
+                                          @RequestBody List<ScheduleEntryRequest> scheduleEntries,
+                                          Principal principal) {
+
+        userService.updateUserScheduleEntries(userId, scheduleEntries, principal);
     }
 
     @PatchMapping("/{userId}/schedule/{entryId}")
     @RolesAllowed({"MENTOR", "ORGANIZER"})
-    void updateUserScheduleEntryTime(@PathVariable("entryId") Long entryId, @RequestBody ScheduleEntryRequest scheduleEntry,
-                                  Principal principal) {
+    public void updateUserScheduleEntryTime(@PathVariable("entryId") Long entryId,
+                                            @RequestBody ScheduleEntryRequest scheduleEntry,
+                                            Principal principal) {
 
         userService.updateUserScheduleEntryTime(entryId, scheduleEntry, principal);
     }
 
     @DeleteMapping("/{userId}/schedule/{entryId}")
     @RolesAllowed({"MENTOR", "ORGANIZER"})
-    void deleteScheduleEntry(@PathVariable("userId") Long userId, @PathVariable("entryId") Long entryId, Principal principal) {
+    public void deleteScheduleEntry(@PathVariable("userId") Long userId,
+                                    @PathVariable("entryId") Long entryId,
+                                    Principal principal) {
+
         userService.deleteScheduleEntry(userId, entryId, principal);
     }
 
     @PatchMapping("/schedule/{entryId}/meeting")
     @RolesAllowed({"TEAM_OWNER"})
-    boolean assignTeamToMeetingWithMentor(@PathVariable("entryId") Long entryId, @RequestBody ScheduleMeetingRequest scheduleMeetingRequest,
-                                          Principal principal) {
-        return userService.updateScheduleEntryAvailabilityStatus(entryId, scheduleMeetingRequest, principal);
+    public boolean assignTeamToMeetingWithMentor(@PathVariable("entryId") Long entryId,
+                                                 @RequestBody ScheduleMeetingDto scheduleMeetingDto,
+                                                 Principal principal) {
+
+        return userService.updateScheduleEntryAvailabilityStatus(entryId, scheduleMeetingDto, principal);
     }
 
     @PatchMapping(value = "/{userId}/roles")
     @RolesAllowed("ORGANIZER")
-    void updateUserRole(@PathVariable("userId") Long userId, @RequestBody Role role, Principal principal) {
+    public void updateUserRole(@PathVariable("userId") Long userId, @RequestBody Role role, Principal principal) {
 
         userService.updateUserRole(userId, role, principal);
     }

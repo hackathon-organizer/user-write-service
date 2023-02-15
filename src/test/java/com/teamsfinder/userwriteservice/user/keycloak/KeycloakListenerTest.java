@@ -1,8 +1,8 @@
 package com.teamsfinder.userwriteservice.user.keycloak;
 
+import com.hackathonorganizer.userwriteservice.user.model.User;
+import com.hackathonorganizer.userwriteservice.user.repository.UserRepository;
 import com.teamsfinder.userwriteservice.user.RabbitMQIntegrationBaseClass;
-import com.teamsfinder.userwriteservice.user.model.User;
-import com.teamsfinder.userwriteservice.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class KeycloakListenerTest extends RabbitMQIntegrationBaseClass {
 
-    private static final String KEYCLOAK_ID = "d1ba60c5-97c1-4b54-b636" +
-            "-90541baef365";
+    private static final String KEYCLOAK_ID = "d1ba60c5-97c1-4b54-b636-90541baef365";
     private static final String USERNAME = "test2";
 
     @Autowired

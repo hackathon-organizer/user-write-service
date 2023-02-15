@@ -15,7 +15,7 @@ public enum Role {
     JURY("JURY"),
     USER("USER");
 
-    private String role;
+    private final String role;
 
     Role(String role) {
         this.role = role;

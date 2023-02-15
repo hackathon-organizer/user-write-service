@@ -2,33 +2,31 @@ package com.hackathonorganizer.userwriteservice.user.model.dto;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
 
-public record ScheduleEntryResponse (
+public record ScheduleEntryResponse(
 
-    Long id,
+        Long id,
 
-    String username,
+        String username,
 
-    Long teamId,
+        Long teamId,
 
-    Long userId,
+        Long userId,
 
-    Long hackathonId,
+        Long hackathonId,
 
-    String info,
+        String info,
 
-    String entryColor,
+        String entryColor,
 
-    boolean isAvailable,
+        boolean isAvailable,
 
-    @DateTimeFormat(pattern = "HH:mm dd-MM-YYYY")
-    OffsetDateTime sessionStart,
+        @DateTimeFormat(pattern = "HH:mm dd-MM-YYYY")
+        OffsetDateTime sessionStart,
 
-    @DateTimeFormat(pattern = "HH:mm dd-MM-YYYY")
-    OffsetDateTime sessionEnd
+        @DateTimeFormat(pattern = "HH:mm dd-MM-YYYY")
+        OffsetDateTime sessionEnd
 ) {
 
 }

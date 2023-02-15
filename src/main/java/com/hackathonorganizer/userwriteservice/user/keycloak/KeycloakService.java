@@ -24,6 +24,7 @@ public class KeycloakService {
     private final String REALM_NAME = "hackathon-organizer";
 
     public void blockInKeycloak(User user) {
+
         try {
             Keycloak keycloak = buildKeyCloak();
             UserResource userResource = getUserResource(user.getKeyCloakId(), keycloak);
@@ -36,12 +37,14 @@ public class KeycloakService {
     }
 
     private UserResource getUserResource(String keyCloakId, Keycloak keycloak) {
+
         RealmResource realmResource = keycloak.realm(keycloakProperties.getRealm());
         UsersResource usersResource = realmResource.users();
         return usersResource.get(keyCloakId);
     }
 
     public Keycloak buildKeyCloak() {
+
         return KeycloakBuilder.builder()
                 .serverUrl(keycloakProperties.getAuthUrl())
                 .realm(keycloakProperties.getMasterRealm())
@@ -73,31 +76,8 @@ public class KeycloakService {
             log.info("Role {} added to user: {}", newRole, keycloakId);
         } catch (Exception ex) {
             log.info("Can't update user roles");
-            ex.printStackTrace();
+
             throw new UserException("Can't update user roles", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public void removeRoles(String keycloakId) {
-        try {
-            RealmResource realmResource = buildKeyCloak().realm(REALM_NAME);
-
-            UsersResource usersResource =  realmResource.users();
-            UserResource userResource = usersResource.get(keycloakId);
-
-            RolesResource realmRoles = realmResource.roles();
-            List<RoleRepresentation> defaultRoles = realmRoles.list().stream()
-                    .filter(role -> role.getName().equals("default-roles-hackathon-organizer") ||
-                            role.getName().equals("USER")).toList();
-
-            userResource.roles().realmLevel().remove(realmRoles.list());
-            userResource.roles().realmLevel().add(defaultRoles);
-
-            log.info("Roles cleared from user: {}", keycloakId);
-        } catch (Exception ex) {
-            log.info("Can't remove user roles");
-            ex.printStackTrace();
-            throw new UserException("Can't remove user roles", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

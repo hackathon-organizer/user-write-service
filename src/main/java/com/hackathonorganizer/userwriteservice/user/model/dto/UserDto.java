@@ -2,16 +2,14 @@ package com.hackathonorganizer.userwriteservice.user.model.dto;
 
 import com.hackathonorganizer.userwriteservice.user.model.Tag;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.Set;
 
-public record EditUserRequestDto(
+public record UserDto(
 
+        Long id,
+        String username,
         String description,
-
+        String keyCloakId,
         Set<Tag> tags
 ) {
-
 }

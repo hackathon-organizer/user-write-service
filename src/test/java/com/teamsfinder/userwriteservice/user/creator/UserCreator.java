@@ -1,12 +1,13 @@
 package com.teamsfinder.userwriteservice.user.creator;
 
-import com.teamsfinder.userwriteservice.user.model.AccountType;
-import com.teamsfinder.userwriteservice.user.model.User;
-import com.teamsfinder.userwriteservice.user.repository.UserRepository;
+
+import com.hackathonorganizer.userwriteservice.user.model.AccountType;
+import com.hackathonorganizer.userwriteservice.user.model.User;
+import com.hackathonorganizer.userwriteservice.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.UUID;
 
 @Component
@@ -25,7 +26,7 @@ public class UserCreator {
                 .githubProfileUrl("USER_GITHUB")
                 .profilePictureUrl("USER_PICTURE")
                 .blocked(false)
-                .tags(new ArrayList<>())
+                .tags(new HashSet<>())
                 .build());
     }
 
@@ -39,7 +40,7 @@ public class UserCreator {
                 .githubProfileUrl("USER_GITHUB")
                 .profilePictureUrl("USER_PICTURE")
                 .blocked(false)
-                .tags(new ArrayList<>())
+                .tags(new HashSet<>())
                 .build());
     }
 }

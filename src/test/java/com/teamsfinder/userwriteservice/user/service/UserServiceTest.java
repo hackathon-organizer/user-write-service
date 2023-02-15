@@ -1,22 +1,24 @@
 package com.teamsfinder.userwriteservice.user.service;
 
+import com.hackathonorganizer.userwriteservice.exception.KeycloakException;
+import com.hackathonorganizer.userwriteservice.exception.UserException;
+import com.hackathonorganizer.userwriteservice.user.keycloak.KeycloakService;
+import com.hackathonorganizer.userwriteservice.user.model.AccountType;
+import com.hackathonorganizer.userwriteservice.user.model.User;
+import com.hackathonorganizer.userwriteservice.user.model.dto.UserEditDto;
+import com.hackathonorganizer.userwriteservice.user.repository.UserRepository;
+import com.hackathonorganizer.userwriteservice.user.service.UserService;
 import com.teamsfinder.userwriteservice.user.UnitBaseClass;
-import com.teamsfinder.userwriteservice.user.dto.EditUserRequestDto;
-import com.teamsfinder.userwriteservice.user.dto.UserResponseDto;
-import com.teamsfinder.userwriteservice.user.exception.KeycloakException;
-import com.teamsfinder.userwriteservice.user.exception.UserNotFoundException;
-import com.teamsfinder.userwriteservice.user.keycloak.KeycloakService;
-import com.teamsfinder.userwriteservice.user.model.AccountType;
-import com.teamsfinder.userwriteservice.user.model.User;
-import com.teamsfinder.userwriteservice.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 
-import java.util.ArrayList;
+import java.security.Principal;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,17 +41,20 @@ class UserServiceTest extends UnitBaseClass {
     @Mock
     private KeycloakService keyCloakService;
 
+    @Mock
+    private Principal principal;
+
     @InjectMocks
     private UserService underTest;
 
-    private User testUser = User.builder()
+    private final User testUser = User.builder()
             .id(1L)
             .keyCloakId(USER_KEYCLOAK_ID)
             .accountType(AccountType.USER)
             .githubProfileUrl(USER_GITHUB)
             .profilePictureUrl(USER_PICTURE)
             .blocked(false)
-            .tags(new ArrayList<>())
+            .tags(new HashSet<>())
             .build();
 
     @Test
@@ -58,12 +63,10 @@ class UserServiceTest extends UnitBaseClass {
         doAnswer(invocationOnMock -> invocationOnMock.getArgument(0)).when(userRepository).save(Mockito.any(User.class));
 
         //when
-        UserResponseDto userDto = underTest.createUser(USER_KEYCLOAK_ID,
-                USERNAME);
+        underTest.createUser(USER_KEYCLOAK_ID, USERNAME);
 
         //then
-        assertThat(userDto.keyCloakId()).isEqualTo(USER_KEYCLOAK_ID);
-        assertThat(userDto.username()).isEqualTo(USERNAME);
+        assertThat(userRepository.findAll().size()).isEqualTo(1);
     }
 
     @Test
@@ -74,18 +77,12 @@ class UserServiceTest extends UnitBaseClass {
         doAnswer(invocationOnMock -> invocationOnMock.getArgument(0)).when(userRepository).save(Mockito.any(User.class));
 
         //when
-        UserResponseDto userDto =
-                underTest.editUser(new EditUserRequestDto(1L, EDIT_STRING,
-                        EDIT_STRING, Set.of(), new ArrayList<>()));
+
+        underTest.editUser(1L, new UserEditDto(EDIT_STRING, new HashSet<>()), principal);
 
         //then
-        assertThat(userDto.id()).isEqualTo(1L);
-        assertThat(userDto.keyCloakId()).isEqualTo(USER_KEYCLOAK_ID);
-        assertThat(userDto.accountType()).isEqualTo(AccountType.USER);
-        assertThat(userDto.githubProfileUrl()).isEqualTo(EDIT_STRING);
-        assertThat(userDto.profilePictureUrl()).isEqualTo(EDIT_STRING);
-        assertThat(userDto.blocked()).isEqualTo(false);
-        assertThat(userDto.tags().size()).isEqualTo(0);
+        assertThat(userRepository.findAll().size()).isEqualTo(1);
+        assertThat(userRepository.existsById(1L)).isTrue();
     }
 
     @Test
@@ -95,11 +92,10 @@ class UserServiceTest extends UnitBaseClass {
 
         //when
         Executable executableEditUser =
-                () -> underTest.editUser(new EditUserRequestDto(1L,
-                        EDIT_STRING, EDIT_STRING, Set.of(), new ArrayList<>()));
+                () -> underTest.editUser(1L, new UserEditDto(EDIT_STRING, Set.of()), principal);
 
         //then
-        assertThrows(UserNotFoundException.class, executableEditUser);
+        assertThrows(UserException.class, executableEditUser);
     }
 
     @Test
@@ -110,26 +106,21 @@ class UserServiceTest extends UnitBaseClass {
         doAnswer(invocationOnMock -> new UserRepresentation()).when(keyCloakService).blockInKeycloak(Mockito.any(User.class));
 
         //when
-        UserResponseDto userDto = underTest.blockUser(1L);
+        underTest.blockUser(1L, principal);
 
         //then
-        assertThat(userDto.id()).isEqualTo(1L);
-        assertThat(userDto.keyCloakId()).isEqualTo(USER_KEYCLOAK_ID);
-        assertThat(userDto.accountType()).isEqualTo(AccountType.USER);
-        assertThat(userDto.githubProfileUrl()).isEqualTo(USER_GITHUB);
-        assertThat(userDto.profilePictureUrl()).isEqualTo(USER_PICTURE);
-        assertThat(userDto.blocked()).isEqualTo(true);
-        assertThat(userDto.tags().size()).isEqualTo(0);
+        assertThat(userRepository.findById(1L).get().isBlocked()).isTrue();
     }
 
     @Test
     void shouldThrowKeyCloakExceptionWhileBlockingUser() {
         //given
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        Mockito.doThrow(new KeycloakException("Test throw error")).when(keyCloakService).blockInKeycloak(Mockito.any(User.class));
+        Mockito.doThrow(new KeycloakException("Test throw error", HttpStatus.FORBIDDEN))
+                .when(keyCloakService).blockInKeycloak(Mockito.any(User.class));
 
         //when
-        Executable executableBlockUser = () -> underTest.blockUser(1L);
+        Executable executableBlockUser = () -> underTest.blockUser(1L, principal);
 
         //then
         assertThrows(KeycloakException.class, executableBlockUser);
@@ -141,9 +132,9 @@ class UserServiceTest extends UnitBaseClass {
         when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(null));
 
         //when
-        Executable executableBlockUser = () -> underTest.blockUser(1L);
+        Executable executableBlockUser = () -> underTest.blockUser(1L, principal);
 
         //then
-        assertThrows(UserNotFoundException.class, executableBlockUser);
+        assertThrows(UserException.class, executableBlockUser);
     }
 }
