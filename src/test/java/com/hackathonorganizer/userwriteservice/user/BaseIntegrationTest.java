@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,21 +27,24 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc
 @SpringBootTest(classes = UserWriteServiceApplication.class)
 @Slf4j
+@ActiveProfiles("test")
 public abstract class BaseIntegrationTest {
 
     private static final PostgreSQLContainer postgresContainer;
     private static final KeycloakContainer keycloakContainer;
 
+    private static final String POSTGRESQL_IMAGE_VERSION = "postgres:14.4";
+    private static final String KC_IMAGE_VERSION = "quay.io/keycloak/keycloak:16.0.0";
+
     private final String BASE_URL = "/api/v1/write/users/";
 
     static {
-        postgresContainer = (PostgreSQLContainer) new PostgreSQLContainer(
-                "postgres:14.4")
+        postgresContainer = (PostgreSQLContainer) new PostgreSQLContainer(POSTGRESQL_IMAGE_VERSION)
                 .withReuse(true);
         postgresContainer.start();
 
         keycloakContainer = new KeycloakContainer(
-                "quay.io/keycloak/keycloak:16.0.0")
+                KC_IMAGE_VERSION)
                 .withRealmImportFile("/realm-export.json");
         keycloakContainer.start();
     }

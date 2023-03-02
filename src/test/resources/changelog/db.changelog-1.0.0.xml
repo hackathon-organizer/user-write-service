@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+    <changeSet id="create-project-structure" author="MrRevo">
+
+        <createTable tableName="user_profile">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_user_id"/>
+            </column>
+            <column name="username" type="varchar"/>
+            <column name="blocked" type="boolean"/>
+            <column name="key_cloak_id" type="varchar">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="account_type" type="varchar">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="github_profile_url" type="varchar"/>
+            <column name="profile_picture_url" type="varchar"/>
+            <column name="current_hackathon_id" type="bigint"/>
+            <column name="current_team_id" type="bigint"/>
+        </createTable>
+
+        <createTable tableName="tag">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_tag_id"/>
+            </column>
+            <column name="name" type="varchar"/>
+        </createTable>
+
+        <createTable tableName="user_tags">
+            <column name="user_id" type="bigint"/>
+            <column name="tag_id" type="bigint"/>
+        </createTable>
+
+        <createIndex tableName="user_tags" indexName="user_tags_index">
+            <column name="user_id"/>
+            <column name="tag_id"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseTableName="user_tags"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_user_tags_user_id"
+                                 referencedTableName="user_profile"
+                                 referencedColumnNames="id" onUpdate="RESTRICT"
+                                 onDelete="RESTRICT"/>
+
+        <addForeignKeyConstraint baseTableName="user_tags"
+                                 baseColumnNames="tag_id"
+                                 constraintName="fk_user_tags_tag_id"
+                                 referencedTableName="tag"
+                                 referencedColumnNames="id" onUpdate="RESTRICT"
+                                 onDelete="RESTRICT"/>
+
+    </changeSet>
+
+    <changeSet id="add-user-invitations" author="Yankes">
+
+        <createTable tableName="user_team_invitations">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_invitation_id"/>
+            </column>
+            <column name="inviting_user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="invitation_status" type="varchar" defaultValue="PENDING">
+            </column>
+            <column name="team_name" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="team_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="user_team_invitations"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_invitations_users"
+                                 referencedTableName="user_profile"
+                                 referencedColumnNames="id" onUpdate="RESTRICT"
+                                 onDelete="RESTRICT"/>
+
+    </changeSet>
+
+    <changeSet id="add-schedule-availability" author="Yankes">
+        <createTable tableName="schedule_entry">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_event_id"/>
+            </column>
+
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="hackathon_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="team_id" type="bigint">
+            </column>
+
+            <column name="info" type="varchar"/>
+
+            <column name="entry_color" type="varchar"/>
+
+            <column name="session_start" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="session_end" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="schedule_entry"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_schedule_entry_users"
+                                 referencedTableName="user_profile"
+                                 referencedColumnNames="id" onUpdate="RESTRICT"
+                                 onDelete="RESTRICT"/>
+
+    </changeSet>
+
+    <changeSet id="add-event-availability-flag" author="Yankes">
+        <addColumn tableName="schedule_entry">
+            <column name="is_available" type="bool" defaultValue="true"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="add-user-description-and-make-username-unique" author="Yankes">
+        <addColumn tableName="user_profile">
+            <column name="description" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <addUniqueConstraint
+                columnNames="username"
+                constraintName="username_unique_constraint"
+                tableName="user_profile"
+        />
+
+        <addUniqueConstraint
+                columnNames="key_cloak_id"
+                constraintName="key_cloak_id_unique_constraint"
+                tableName="user_profile"
+        />
+    </changeSet>
+
+    <changeSet id="insert-basic-tags" author="Yankes">
+        <insert tableName="tag">
+            <column name="name" value="Java"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="CSS"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="HTML"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="JavaScript"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="C"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="C++"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="C#"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Python"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Go"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Ruby"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Swift"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="PHP"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Angular"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="React"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Vue"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Laravel"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Spring Boot"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Django"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Flask"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Docker"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Kubernetes"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="SQL"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="noSQL"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="TypeScript"/>
+        </insert>
+        <insert tableName="tag">
+            <column name="name" value="Rust"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

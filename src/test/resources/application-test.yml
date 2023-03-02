@@ -3,14 +3,7 @@ spring:
     config:
       enabled: false
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.xml
+    change-log: classpath:changelog/db.changelog-test.xml
   jpa:
     hibernate:
       ddl-auto: validate
-#keycloak:
-#  authUrl: http://localhost:8080/auth
-#  realm: hackathon-organizer
-#  masterRealm: master
-#  clientId: admin-cli
-#  username: admin
-#  password: ${keycloak.password}

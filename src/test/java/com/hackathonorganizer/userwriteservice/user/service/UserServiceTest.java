@@ -67,13 +67,13 @@ class UserServiceTest {
         doAnswer(invocation -> invocation.getArgument(0)).when(userRepository).save(Mockito.any(User.class));
 
         //when
-        userService.createUser("id", "username");
+        userService.createUser("id", username);
 
         //then
         verify(userRepository).save(userCaptor.capture());
         User user = userCaptor.getValue();
 
-        assertThat(user.getUsername()).isEqualTo("username");
+        assertThat(user.getUsername()).isEqualTo(username);
     }
 
     @Test
