@@ -41,14 +41,14 @@ public class UserService {
         log.info("User with username: {} saved successfully", username);
     }
 
-    public void editUser(Long userId, UserEditDto userEditDto, Principal principal) {
+    public void updateUser(Long userId, UserUpdateDto userUpdateDto, Principal principal) {
 
         User user = getUserById(userId);
 
         if (verifyUser(principal, user.getKeyCloakId())) {
 
-            user.setDescription(userEditDto.description());
-            user.setTags(userEditDto.tags());
+            user.setDescription(userUpdateDto.description());
+            user.setTags(userUpdateDto.tags());
 
             userRepository.save(user);
 
@@ -92,6 +92,8 @@ public class UserService {
                                                          ScheduleEntryRequest scheduleEntryRequest,
                                                          Principal principal) {
 
+        // TODO add date validation
+
         User user = getUserById(userId);
 
         if (verifyUser(principal, user.getKeyCloakId())) {
@@ -106,9 +108,6 @@ public class UserService {
                     .build();
 
             ScheduleEntry savedEntry = scheduleEntryRepository.save(scheduleEntry);
-
-            user.addScheduleEntry(savedEntry);
-            userRepository.save(user);
 
             log.info("User with id: {} schedule entry created successfully", user.getId());
 
@@ -125,6 +124,9 @@ public class UserService {
                                           List<ScheduleEntryRequest> scheduleEntries,
                                           Principal principal) {
 
+        // TODO add date validation
+
+
         User user = getUserById(userId);
 
         if (verifyUser(principal, user.getKeyCloakId())) {
@@ -132,7 +134,6 @@ public class UserService {
             scheduleEntries.forEach(entry -> {
 
                 ScheduleEntry entryToUpdate = getScheduleEntryById(entry.id());
-
 
                 entryToUpdate.setSessionStart(entry.sessionStart());
                 entryToUpdate.setSessionEnd(entry.sessionEnd());
@@ -149,6 +150,9 @@ public class UserService {
     public boolean updateScheduleEntryAvailabilityStatus(Long entryId,
                                                          ScheduleMeetingDto meetingRequest,
                                                          Principal principal) {
+
+        // TODO add date validation
+
 
         User user = getUserByKeycloakId(principal);
 
@@ -182,6 +186,9 @@ public class UserService {
     public void updateUserScheduleEntryTime(Long entryId,
                                             ScheduleEntryRequest scheduleEntryRequest,
                                             Principal principal) {
+
+        // TODO add date validation
+
 
         ScheduleEntry scheduleEntry = getScheduleEntryById(entryId);
 

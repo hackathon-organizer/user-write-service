@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.teamsfinder</groupId>
     <artifactId>user-write-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0</version>
     <name>user-write-service</name>
     <description>user-write-service</description>
     <properties>

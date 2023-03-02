@@ -4,7 +4,7 @@ import com.hackathonorganizer.userwriteservice.user.model.Tag;
 
 import java.util.Set;
 
-public record UserEditDto(
+public record UserUpdateDto(
 
         String description,
         Set<Tag> tags

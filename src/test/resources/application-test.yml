@@ -7,3 +7,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+#keycloak:
+#  authUrl: http://localhost:8080/auth
+#  realm: hackathon-organizer
+#  masterRealm: master
+#  clientId: admin-cli
+#  username: admin
+#  password: ${keycloak.password}

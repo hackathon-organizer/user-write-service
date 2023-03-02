@@ -4,9 +4,11 @@ import com.hackathonorganizer.userwriteservice.user.keycloak.Role;
 import com.hackathonorganizer.userwriteservice.user.model.dto.*;
 import com.hackathonorganizer.userwriteservice.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 
@@ -21,10 +23,10 @@ class UserController {
     @PatchMapping("/{userId}")
     @RolesAllowed({"USER"})
     public void editUser(@PathVariable("userId") Long userId,
-                         @RequestBody UserEditDto userEditDto,
+                         @RequestBody UserUpdateDto userUpdateDto,
                          Principal principal) {
 
-        userService.editUser(userId, userEditDto, principal);
+        userService.updateUser(userId, userUpdateDto, principal);
     }
 
     @PatchMapping("/{userId}/membership")
@@ -45,8 +47,9 @@ class UserController {
 
     @PostMapping("/{userId}/schedule")
     @RolesAllowed({"MENTOR", "ORGANIZER"})
+    @ResponseStatus(HttpStatus.CREATED)
     public ScheduleEntryResponse createUserScheduleEntry(@PathVariable("userId") Long userId,
-                                                         @RequestBody ScheduleEntryRequest scheduleEntryRequest,
+                                                         @RequestBody @Valid ScheduleEntryRequest scheduleEntryRequest,
                                                          Principal principal) {
 
         return userService.createUserScheduleEntry(userId, scheduleEntryRequest, principal);
@@ -55,7 +58,7 @@ class UserController {
     @PutMapping("/{userId}/schedule")
     @RolesAllowed({"MENTOR", "ORGANIZER"})
     public void updateUserScheduleEntries(@PathVariable("userId") Long userId,
-                                          @RequestBody List<ScheduleEntryRequest> scheduleEntries,
+                                          @RequestBody @Valid List<ScheduleEntryRequest> scheduleEntries,
                                           Principal principal) {
 
         userService.updateUserScheduleEntries(userId, scheduleEntries, principal);
@@ -64,7 +67,7 @@ class UserController {
     @PatchMapping("/{userId}/schedule/{entryId}")
     @RolesAllowed({"MENTOR", "ORGANIZER"})
     public void updateUserScheduleEntryTime(@PathVariable("entryId") Long entryId,
-                                            @RequestBody ScheduleEntryRequest scheduleEntry,
+                                            @RequestBody @Valid ScheduleEntryRequest scheduleEntry,
                                             Principal principal) {
 
         userService.updateUserScheduleEntryTime(entryId, scheduleEntry, principal);
@@ -88,7 +91,7 @@ class UserController {
         return userService.updateScheduleEntryAvailabilityStatus(entryId, scheduleMeetingDto, principal);
     }
 
-    @PatchMapping(value = "/{userId}/roles")
+    @PatchMapping("/{userId}/roles")
     @RolesAllowed("ORGANIZER")
     public void updateUserRole(@PathVariable("userId") Long userId, @RequestBody Role role, Principal principal) {
 
