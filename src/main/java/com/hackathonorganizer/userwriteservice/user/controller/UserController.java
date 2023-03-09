@@ -25,7 +25,7 @@ class UserController {
     UserResponseDto updateUserMembership(@PathVariable("userId") Long userId,
      @RequestBody UserMembershipRequest userMembershipRequest) {
 
-        return userService.updateUserHackathonMemership(userId, userMembershipRequest);
+        return userService.updateUserHackathonMembership(userId, userMembershipRequest);
     }
 
     @PatchMapping("/{id}/block")
