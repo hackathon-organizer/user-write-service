@@ -1,7 +1,6 @@
 package com.hackathonorganizer.userwriteservice.user.creator;
 
 
-import com.hackathonorganizer.userwriteservice.user.model.AccountType;
 import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntry;
 import com.hackathonorganizer.userwriteservice.user.model.User;
 import com.hackathonorganizer.userwriteservice.user.model.dto.ScheduleEntryRequest;
@@ -29,9 +28,6 @@ public class TestDataUtils {
                 .id(null)
                 .username(uuid.toString())
                 .keyCloakId(uuid.toString())
-                .accountType(AccountType.USER)
-                .githubProfileUrl("USER_GITHUB")
-                .profilePictureUrl("USER_PICTURE")
                 .blocked(false)
                 .tags(new HashSet<>())
                 .build());
@@ -43,9 +39,6 @@ public class TestDataUtils {
                 .id(null)
                 .username(uuid.toString())
                 .keyCloakId(keycloakId)
-                .accountType(AccountType.USER)
-                .githubProfileUrl("USER_GITHUB")
-                .profilePictureUrl("USER_PICTURE")
                 .currentTeamId(5L)
                 .currentHackathonId(1L)
                 .tags(new HashSet<>())
@@ -56,7 +49,6 @@ public class TestDataUtils {
         return User.builder()
                 .id(1L)
                 .keyCloakId("id")
-                .accountType(AccountType.USER)
                 .blocked(false)
                 .scheduleEntries(Set.of())
                 .tags(new HashSet<>())

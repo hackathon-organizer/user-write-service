@@ -4,21 +4,17 @@ import com.hackathonorganizer.userwriteservice.exception.ScheduleException;
 import com.hackathonorganizer.userwriteservice.exception.UserException;
 import com.hackathonorganizer.userwriteservice.user.creator.TestDataUtils;
 import com.hackathonorganizer.userwriteservice.user.keycloak.KeycloakService;
-import com.hackathonorganizer.userwriteservice.user.keycloak.Role;
-import com.hackathonorganizer.userwriteservice.user.model.AccountType;
 import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntry;
 import com.hackathonorganizer.userwriteservice.user.model.User;
 import com.hackathonorganizer.userwriteservice.user.model.dto.*;
 import com.hackathonorganizer.userwriteservice.user.repository.ScheduleEntryRepository;
 import com.hackathonorganizer.userwriteservice.user.repository.UserRepository;
-import com.nimbusds.jwt.JWTParser;
 import com.sun.security.auth.UserPrincipal;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.security.Principal;
 import java.time.OffsetDateTime;
@@ -26,13 +22,11 @@ import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {

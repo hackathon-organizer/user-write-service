@@ -32,15 +32,6 @@ public class User {
     @Column(updatable = false)
     private String keyCloakId;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private AccountType accountType = AccountType.USER;
-
-    private String githubProfileUrl;
-
-    private String profilePictureUrl;
-
     private Long currentHackathonId;
 
     private Long currentTeamId;

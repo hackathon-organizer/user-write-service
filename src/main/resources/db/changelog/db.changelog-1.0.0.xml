@@ -15,11 +15,6 @@
             <column name="key_cloak_id" type="varchar">
                 <constraints nullable="false"></constraints>
             </column>
-            <column name="account_type" type="varchar">
-                <constraints nullable="false"></constraints>
-            </column>
-            <column name="github_profile_url" type="varchar"/>
-            <column name="profile_picture_url" type="varchar"/>
             <column name="current_hackathon_id" type="bigint"/>
             <column name="current_team_id" type="bigint"/>
         </createTable>
