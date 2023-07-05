@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
@@ -36,19 +37,17 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
-        keyCloakService.updateUserRole(savedUser.getKeyCloakId(), Role.USER);
-
-        log.info("User with username: {} saved successfully", username);
+        log.info("User with username: {} saved successfully", savedUser.getUsername());
     }
 
-    public void updateUser(Long userId, UserUpdateDto userUpdateDto, Principal principal) {
+    public void updateUser(Long userId, UserUpdateRequest userUpdateRequest, Principal principal) {
 
         User user = getUserById(userId);
 
         if (verifyUser(principal, user.getKeyCloakId())) {
 
-            user.setDescription(userUpdateDto.description());
-            user.setTags(userUpdateDto.tags());
+            user.setDescription(userUpdateRequest.description());
+            user.setTags(userUpdateRequest.tags());
 
             userRepository.save(user);
 
@@ -92,11 +91,10 @@ public class UserService {
                                                          ScheduleEntryRequest scheduleEntryRequest,
                                                          Principal principal) {
 
-        // TODO add date validation
-
         User user = getUserById(userId);
 
-        if (verifyUser(principal, user.getKeyCloakId())) {
+        if (verifyUser(principal, user.getKeyCloakId()) &&
+                isDateValid(scheduleEntryRequest.sessionStart(), scheduleEntryRequest.sessionEnd())) {
 
             ScheduleEntry scheduleEntry = ScheduleEntry.builder()
                     .hackathonId(scheduleEntryRequest.hackathonId())
@@ -124,23 +122,23 @@ public class UserService {
                                           List<ScheduleEntryRequest> scheduleEntries,
                                           Principal principal) {
 
-        // TODO add date validation
-
-
         User user = getUserById(userId);
 
         if (verifyUser(principal, user.getKeyCloakId())) {
 
             scheduleEntries.forEach(entry -> {
 
-                ScheduleEntry entryToUpdate = getScheduleEntryById(entry.id());
+                if (isDateValid(entry.sessionStart(), entry.sessionEnd())) {
 
-                entryToUpdate.setSessionStart(entry.sessionStart());
-                entryToUpdate.setSessionEnd(entry.sessionEnd());
-                entryToUpdate.setEntryColor(entry.entryColor());
-                entryToUpdate.setInfo(entry.info());
+                    ScheduleEntry entryToUpdate = getScheduleEntryById(entry.id());
 
-                scheduleEntryRepository.save(entryToUpdate);
+                    entryToUpdate.setSessionStart(entry.sessionStart());
+                    entryToUpdate.setSessionEnd(entry.sessionEnd());
+                    entryToUpdate.setEntryColor(entry.entryColor());
+                    entryToUpdate.setInfo(entry.info());
+
+                    scheduleEntryRepository.save(entryToUpdate);
+                }
             });
 
             log.info("Schedule for user with id: {} updated successfully", user.getId());
@@ -148,11 +146,8 @@ public class UserService {
     }
 
     public boolean updateScheduleEntryAvailabilityStatus(Long entryId,
-                                                         ScheduleMeetingDto meetingRequest,
+                                                         ScheduleMeetingRequest meetingRequest,
                                                          Principal principal) {
-
-        // TODO add date validation
-
 
         User user = getUserByKeycloakId(principal);
 
@@ -187,12 +182,10 @@ public class UserService {
                                             ScheduleEntryRequest scheduleEntryRequest,
                                             Principal principal) {
 
-        // TODO add date validation
-
-
         ScheduleEntry scheduleEntry = getScheduleEntryById(entryId);
 
-        if (verifyUser(principal, scheduleEntry.getUser().getKeyCloakId())) {
+        if (verifyUser(principal, scheduleEntry.getUser().getKeyCloakId()) &&
+                isDateValid(scheduleEntryRequest.sessionStart(), scheduleEntryRequest.sessionEnd())) {
             scheduleEntry.setSessionStart(scheduleEntryRequest.sessionStart());
             scheduleEntry.setSessionEnd(scheduleEntryRequest.sessionEnd());
 
@@ -202,7 +195,7 @@ public class UserService {
         }
     }
 
-    public void deleteScheduleEntry(Long userId, Long entryId, Principal principal) {
+    public void deleteScheduleEntry(Long entryId, Principal principal) {
 
         ScheduleEntry scheduleEntry = getScheduleEntryById(entryId);
 
@@ -258,5 +251,14 @@ public class UserService {
         return scheduleEntryRepository.findById(entryId)
                 .orElseThrow(() -> new ScheduleException(String.format("Schedule entry with id: %d not found", entryId),
                         HttpStatus.NOT_FOUND));
+    }
+
+    private boolean isDateValid(OffsetDateTime start, OffsetDateTime end) {
+
+        if (start.isAfter(OffsetDateTime.now()) && start.isBefore(end)) {
+            return true;
+        } else {
+            throw new UserException("Event dates are invalid", HttpStatus.BAD_REQUEST);
+        }
     }
 }

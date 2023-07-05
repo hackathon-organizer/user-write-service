@@ -32,11 +32,9 @@ public class ScheduleEntry {
     private boolean isAvailable = true;
 
     @NotNull
-    @DateTimeFormat(pattern = "HH:mm dd-MM-YYYY")
     private OffsetDateTime sessionStart;
 
     @NotNull
-    @DateTimeFormat(pattern = "HH:mm dd-MM-YYYY")
     private OffsetDateTime sessionEnd;
 
     @ManyToOne(fetch = FetchType.LAZY)

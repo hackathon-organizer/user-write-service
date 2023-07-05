@@ -5,9 +5,9 @@ import com.hackathonorganizer.userwriteservice.user.keycloak.Role;
 import com.hackathonorganizer.userwriteservice.user.model.ScheduleEntry;
 import com.hackathonorganizer.userwriteservice.user.model.User;
 import com.hackathonorganizer.userwriteservice.user.model.dto.ScheduleEntryRequest;
-import com.hackathonorganizer.userwriteservice.user.model.dto.ScheduleMeetingDto;
+import com.hackathonorganizer.userwriteservice.user.model.dto.ScheduleMeetingRequest;
 import com.hackathonorganizer.userwriteservice.user.model.dto.UserMembershipRequest;
-import com.hackathonorganizer.userwriteservice.user.model.dto.UserUpdateDto;
+import com.hackathonorganizer.userwriteservice.user.model.dto.UserUpdateRequest;
 import com.hackathonorganizer.userwriteservice.user.repository.ScheduleEntryRepository;
 import com.hackathonorganizer.userwriteservice.user.repository.UserRepository;
 import com.hackathonorganizer.userwriteservice.user.BaseIntegrationTest;
@@ -52,7 +52,7 @@ class UserControllerTest extends BaseIntegrationTest {
         String keycloakId = JWTParser.parse(token).getJWTClaimsSet().getSubject();
 
         User user = testDataUtils.createUserWithKeycloakId(keycloakId);
-        UserUpdateDto editUserDto = new UserUpdateDto("new desc", Set.of());
+        UserUpdateRequest editUserDto = new UserUpdateRequest("new desc", Set.of());
 
 
         //when
@@ -70,7 +70,7 @@ class UserControllerTest extends BaseIntegrationTest {
         //given
         String token = getJaneDoeBearer(Role.USER);
 
-        UserUpdateDto editUserDto = new UserUpdateDto("new desc", new HashSet<>());
+        UserUpdateRequest editUserDto = new UserUpdateRequest("new desc", new HashSet<>());
 
         //when
         ResultActions resultActions = mockMvc.perform(patchJsonRequest(editUserDto, token, "5"));
@@ -241,12 +241,12 @@ class UserControllerTest extends BaseIntegrationTest {
         User user = testDataUtils.createUserWithKeycloakId(keycloakId);
         ScheduleEntry scheduleEntry = testDataUtils.createScheduleEntry(user);
 
-        ScheduleMeetingDto scheduleMeetingDto = new ScheduleMeetingDto(scheduleEntry.getTeamId(), user.getId());
+        ScheduleMeetingRequest scheduleMeetingRequest = new ScheduleMeetingRequest(scheduleEntry.getTeamId(), user.getId());
 
         // when
         ResultActions resultActions =
                 mockMvc.perform(
-                        patchJsonRequest(scheduleMeetingDto, token, "schedule", scheduleEntry.getId().toString(), "meeting"));
+                        patchJsonRequest(scheduleMeetingRequest, token, "schedule", scheduleEntry.getId().toString(), "meeting"));
 
         // then
         resultActions.andExpect(status().isOk());
@@ -265,12 +265,12 @@ class UserControllerTest extends BaseIntegrationTest {
         scheduleEntry.setAvailable(false);
         testDataUtils.updateScheduleEntry(scheduleEntry);
 
-        ScheduleMeetingDto scheduleMeetingDto = new ScheduleMeetingDto(scheduleEntry.getTeamId(), user.getId());
+        ScheduleMeetingRequest scheduleMeetingRequest = new ScheduleMeetingRequest(scheduleEntry.getTeamId(), user.getId());
 
         // when
         ResultActions resultActions =
                 mockMvc.perform(
-                        patchJsonRequest(scheduleMeetingDto, token, "schedule", scheduleEntry.getId().toString(), "meeting"));
+                        patchJsonRequest(scheduleMeetingRequest, token, "schedule", scheduleEntry.getId().toString(), "meeting"));
 
         // then
         resultActions.andExpect(status().isForbidden());

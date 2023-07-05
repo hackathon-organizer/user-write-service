@@ -79,7 +79,7 @@ class UserServiceTest {
 
         //when
 
-        userService.updateUser(1L, new UserUpdateDto("new desc", new HashSet<>()), principal);
+        userService.updateUser(1L, new UserUpdateRequest("new desc", new HashSet<>()), principal);
 
         //then
         verify(userRepository).findById(anyLong());
@@ -98,7 +98,7 @@ class UserServiceTest {
 
         Throwable throwable =
                 catchThrowable(() -> userService.updateUser(1L,
-                        new UserUpdateDto("new desc", new HashSet<>()), principal));
+                        new UserUpdateRequest("new desc", new HashSet<>()), principal));
 
         //then
         verify(userRepository).findById(anyLong());
@@ -275,7 +275,7 @@ class UserServiceTest {
 
         //when
 
-        userService.deleteScheduleEntry(mockUser.getId(), scheduleEntry.getId(), principal);
+        userService.deleteScheduleEntry(scheduleEntry.getId(), principal);
 
         //then
         verify(scheduleEntryRepository).deleteById(scheduleEntry.getId());
@@ -292,7 +292,7 @@ class UserServiceTest {
         //when
 
         Throwable throwable =
-                catchThrowable(() -> userService.deleteScheduleEntry(mockUser.getId(), 999L, principal));
+                catchThrowable(() -> userService.deleteScheduleEntry(999L, principal));
 
         //then
         assertThat(throwable).isExactlyInstanceOf(ScheduleException.class);

@@ -17,11 +17,9 @@ public record ScheduleEntryRequest(
         String entryColor,
 
         @NotNull(message = "Event start date can not be null!")
-        @DateTimeFormat(pattern = "HH:mm dd-MM-YYYY")
         OffsetDateTime sessionStart,
 
         @NotNull(message = "Event end date can not be null!")
-        @DateTimeFormat(pattern = "HH:mm dd-MM-YYYY")
         OffsetDateTime sessionEnd
 ) {
 }
